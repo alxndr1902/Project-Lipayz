@@ -1,0 +1,22 @@
+package com.zezame.lipayz.service;
+
+import com.zezame.lipayz.dto.CreateResDTO;
+import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
+import com.zezame.lipayz.dto.user.CreateUserReqDTO;
+import com.zezame.lipayz.dto.user.UserResDTO;
+import com.zezame.lipayz.model.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
+
+public interface UserService extends UserDetailsService {
+    User findByEmail(String email);
+
+    List<UserResDTO> getUsers(String roleCode);
+
+    UserResDTO getUserById(String id);
+
+    CreateResDTO registerCustomer(CreateUserReqDTO request);
+
+    CreateResDTO registerPaymentGateway(CreatePGReqDTO request);
+}
