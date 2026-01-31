@@ -44,7 +44,7 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
          var errorMessage = e.getMessage();
 
-         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(DuplicateException.class)
@@ -52,7 +52,7 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         var errorMessage = e.getMessage();
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -60,7 +60,7 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         var errorMessage = "Method Is Not Found/Request Body Is Not Valid";
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -68,15 +68,7 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         var errorMessage = e.getMessage();
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e) {
-        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        var errorMessage = "Unknown Error Occurred";
-
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -84,15 +76,15 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         var errorMessage = "Invalid Request Parameter";
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
-    @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<?> handleInsufficientStockException(InsufficientStockException e) {
-        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> handleForbiddenException(ForbiddenException e) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         var errorMessage = e.getMessage();
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(ConflictException.class)
@@ -100,7 +92,7 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         var errorMessage = e.getMessage();
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(InvalidSortFieldException.class)
@@ -108,7 +100,7 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         var errorMessage = e.getMessage();
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -116,6 +108,6 @@ public class ErrorHandler {
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
         var errorMessage = e.getMessage();
 
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage),  httpStatus);
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 }

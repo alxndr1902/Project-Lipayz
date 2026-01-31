@@ -10,8 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "transaction_histories")
-public class TransactionHistory extends BaseModel{
+@Table(name = "histories")
+public class History extends BaseModel{
     @ManyToOne
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transaction;

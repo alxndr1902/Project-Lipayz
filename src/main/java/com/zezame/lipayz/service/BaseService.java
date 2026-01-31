@@ -18,6 +18,12 @@ public class BaseService {
         return model;
     }
 
+    protected <T extends BaseModel> T prepareCreate(T model, LocalDateTime now) {
+        model.setId(UUID.randomUUID());
+        model.setCreatedAt(now);
+        return model;
+    }
+
     protected <T extends BaseModel> T prepareUpdate(T model) {
         model.setUpdatedAt(LocalDateTime.now());
         model.setUpdatedBy(UUID.fromString(principalService.getPrincipal().getId()));
@@ -35,11 +41,11 @@ public class BaseService {
         }
     }
 
-    protected String generateRandomAlphaNumeric() {
+    protected String generateRandomAlphaNumeric(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder result = new StringBuilder();
         Random random = new Random();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < length; i++) {
             int index = random.nextInt(chars.length());
             result.append(chars.charAt(index));
         }

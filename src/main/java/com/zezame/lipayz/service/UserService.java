@@ -1,5 +1,6 @@
 package com.zezame.lipayz.service;
 
+import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
 import com.zezame.lipayz.dto.user.CreateUserReqDTO;
@@ -18,5 +19,7 @@ public interface UserService extends UserDetailsService {
 
     CreateResDTO registerCustomer(CreateUserReqDTO request);
 
-    CreateResDTO registerPaymentGateway(CreatePGReqDTO request);
+    CommonResDTO deleteCustomer(String id);
+
+    CommonResDTO activateCustomer(String email, String code);
 }

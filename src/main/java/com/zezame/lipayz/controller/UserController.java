@@ -1,7 +1,7 @@
 package com.zezame.lipayz.controller;
 
+import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
-import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
 import com.zezame.lipayz.dto.user.CreateUserReqDTO;
 import com.zezame.lipayz.dto.user.UserResDTO;
 import com.zezame.lipayz.service.UserService;
@@ -37,5 +37,16 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    //TODO: Delete user
+    @DeleteMapping("{id}")
+    public ResponseEntity<CommonResDTO> deleteCustomer(@PathVariable String id) {
+        var response = userService.deleteCustomer(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PatchMapping("activate")
+    public ResponseEntity<CommonResDTO> activateCustomer(@RequestParam String email,
+                                                         @RequestParam String code) {
+        var response = userService.activateCustomer(email, code);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +85,8 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     @Override
     @Transactional(rollbackOn = Exception.class)
     public CreateResDTO registerPaymentGatewayAdmin(String paymentGatewayId, CreatePGAdminReqDTO request) {
-        if (paymentGatewayAdminRepo.existsByEmail(request.getEmail())) {
+        LocalDateTime now = LocalDateTime.now();
+        if (userRepo.existsByEmail(request.getEmail())) {
             throw new DuplicateException("Email is Not Available");
         }
 
@@ -97,7 +99,7 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setFullName(request.getName());
-        var savedUser = userRepo.save(prepareCreate(user));
+        var savedUser = userRepo.save(prepareCreate(user, now));
 
         var paymentGateway = findPaymentGatewayById(paymentGatewayId);
 
@@ -105,7 +107,7 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         paymentGatewayAdmin.setUser(savedUser);
         paymentGatewayAdmin.setPaymentGateway(paymentGateway);
 
-        var savedPGA = paymentGatewayAdminRepo.save(prepareCreate(paymentGatewayAdmin));
+        var savedPGA = paymentGatewayAdminRepo.save(prepareCreate(paymentGatewayAdmin, now));
 
         return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
     }

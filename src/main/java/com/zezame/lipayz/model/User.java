@@ -22,9 +22,9 @@ public class User extends BaseModel {
     @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column
+    @Column(nullable = false)
     private Boolean isActivated;
 
-    @Column(nullable = false, length = 6)
+    @Column(length = 6)
     private String activationCode;
 }

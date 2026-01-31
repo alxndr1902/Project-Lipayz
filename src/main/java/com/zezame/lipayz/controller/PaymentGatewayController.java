@@ -4,12 +4,12 @@ import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
 import com.zezame.lipayz.dto.paymentgateway.*;
-import com.zezame.lipayz.dto.user.UserResDTO;
 import com.zezame.lipayz.service.PaymentGatewayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("payment-gateways")
+@PreAuthorize("hasRole('SA')")
 public class PaymentGatewayController {
     private final PaymentGatewayService paymentGatewayService;
 
@@ -52,8 +53,8 @@ public class PaymentGatewayController {
     }
 
     @PostMapping("{paymentGatewayId}/admins")
-    public ResponseEntity<CreateResDTO> registerPGAdmin(@PathVariable String paymentGatewayId,
-                                                        @RequestBody @Valid CreatePGAdminReqDTO request) {
+    public ResponseEntity<CreateResDTO> registerPaymentGatewayAdmin(@PathVariable String paymentGatewayId,
+                                                                    @RequestBody @Valid CreatePGAdminReqDTO request) {
         var response = paymentGatewayService.registerPaymentGatewayAdmin(paymentGatewayId, request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
