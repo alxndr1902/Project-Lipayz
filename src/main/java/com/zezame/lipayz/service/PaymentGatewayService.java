@@ -1,10 +1,9 @@
 package com.zezame.lipayz.service;
 
+import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
-import com.zezame.lipayz.dto.paymentgateway.CreatePGAdminReqDTO;
-import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
-import com.zezame.lipayz.dto.paymentgateway.PaymentGatewayResDTO;
-import com.zezame.lipayz.dto.user.UserResDTO;
+import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.paymentgateway.*;
 
 import java.util.List;
 
@@ -13,9 +12,15 @@ public interface PaymentGatewayService {
 
     PaymentGatewayResDTO getPaymentGatewayById(String id);
 
-    CreateResDTO register(CreatePGReqDTO request);
+    CreateResDTO registerPaymentGateway(CreatePGReqDTO request);
 
-    CreateResDTO registerPGAdmin(String paymentGatewayId, CreatePGAdminReqDTO request);
+    UpdateResDTO updatePaymentGateway(String id, UpdatePGReqDTO request);
 
-    List<UserResDTO> getPaymentGatewayAdmins(String paymentGatewayId);
+    CommonResDTO deletePaymentGateway(String id);
+
+    CreateResDTO registerPaymentGatewayAdmin(String paymentGatewayId, CreatePGAdminReqDTO request);
+
+    List<PaymentGatewayAdminResDTO> getPaymentGatewayAdmins(String paymentGatewayId);
+
+    CommonResDTO deletePaymentGatewayAdmin(String id);
 }

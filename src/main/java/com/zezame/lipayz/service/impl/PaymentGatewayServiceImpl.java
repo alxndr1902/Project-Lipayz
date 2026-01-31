@@ -2,11 +2,10 @@ package com.zezame.lipayz.service.impl;
 
 import com.zezame.lipayz.constant.Message;
 import com.zezame.lipayz.constant.RoleCode;
+import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
-import com.zezame.lipayz.dto.paymentgateway.CreatePGAdminReqDTO;
-import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
-import com.zezame.lipayz.dto.paymentgateway.PaymentGatewayResDTO;
-import com.zezame.lipayz.dto.user.UserResDTO;
+import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.paymentgateway.*;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.PaymentGatewayMapper;
@@ -52,7 +51,7 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     }
 
     @Override
-    public CreateResDTO register(CreatePGReqDTO request) {
+    public CreateResDTO registerPaymentGateway(CreatePGReqDTO request) {
         if (paymentGatewayRepo.existsByCode(request.getCode())) {
             throw new DuplicateException("Code Is Not Available");
         }
@@ -66,8 +65,25 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     }
 
     @Override
+    public UpdateResDTO updatePaymentGateway(String id, UpdatePGReqDTO request) {
+        var paymentGateway = findPaymentGatewayById(id);
+        paymentGateway.setCode(request.getCode());
+        paymentGateway.setName(request.getName());
+        paymentGateway.setRate(request.getRate());
+        var updatedPaymentGateway = paymentGatewayRepo.saveAndFlush(prepareUpdate(paymentGateway));
+        return new UpdateResDTO(updatedPaymentGateway.getVersion(), Message.UPDATED.getDescription());
+    }
+
+    @Override
+    public CommonResDTO deletePaymentGateway(String id) {
+        var paymentGateway = findPaymentGatewayById(id);
+        paymentGatewayRepo.delete(paymentGateway);
+        return new CommonResDTO(Message.DELETED.getDescription());
+    }
+
+    @Override
     @Transactional(rollbackOn = Exception.class)
-    public CreateResDTO registerPGAdmin(String paymentGatewayId, CreatePGAdminReqDTO request) {
+    public CreateResDTO registerPaymentGatewayAdmin(String paymentGatewayId, CreatePGAdminReqDTO request) {
         if (paymentGatewayAdminRepo.existsByEmail(request.getEmail())) {
             throw new DuplicateException("Email is Not Available");
         }
@@ -95,13 +111,31 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     }
 
     @Override
-    public List<UserResDTO> getPaymentGatewayAdmins(String paymentGatewayId) {
-        return List.of();
+    public List<PaymentGatewayAdminResDTO> getPaymentGatewayAdmins(String paymentGatewayId) {
+        List<PaymentGatewayAdmin> admins = paymentGatewayAdminRepo.findAll();
+        List<PaymentGatewayAdminResDTO> DTOs = new ArrayList<>();
+        for (PaymentGatewayAdmin admin : admins) {
+            DTOs.add(paymentGatewayMapper.mapToDto(admin));
+        }
+        return DTOs;
+    }
+
+    @Override
+    public CommonResDTO deletePaymentGatewayAdmin(String id) {
+        var PGAdmin = findPaymentGatewayAdmin(id);
+        paymentGatewayAdminRepo.delete(PGAdmin);
+        return new CommonResDTO(Message.DELETED.getDescription());
     }
 
     private PaymentGateway findPaymentGatewayById(String id) {
         var paymentGatewayId = parseUUID(id);
         return paymentGatewayRepo.findById(paymentGatewayId)
                 .orElseThrow(() -> new NotFoundException("Payment Gateway Is Not Found"));
+    }
+
+    private PaymentGatewayAdmin findPaymentGatewayAdmin(String id) {
+        var paymentGatewayAdminId = parseUUID(id);
+        return paymentGatewayAdminRepo.findById(paymentGatewayAdminId)
+                .orElseThrow(() -> new NotFoundException("Payment Gateway Admin Is Not Found"));
     }
 }

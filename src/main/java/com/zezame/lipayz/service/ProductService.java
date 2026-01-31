@@ -1,0 +1,19 @@
+package com.zezame.lipayz.service;
+
+import com.zezame.lipayz.dto.CreateResDTO;
+import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.product.CreateProductReqDTO;
+import com.zezame.lipayz.dto.product.ProductResDTO;
+import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
+
+import java.util.List;
+
+public interface ProductService {
+    List<ProductResDTO> getProducts();
+
+    ProductResDTO getProductById(String id);
+
+    CreateResDTO createProduct(CreateProductReqDTO request);
+
+    UpdateResDTO updateProduct(String id, UpdateProductReqDTO request);
+}
