@@ -8,6 +8,7 @@ import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
+import com.zezame.lipayz.exceptiohandler.exception.OptimisticLockException;
 import com.zezame.lipayz.mapper.ProductMapper;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.repo.ProductRepo;
