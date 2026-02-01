@@ -57,6 +57,11 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Override
     public UpdateResDTO updateProduct(String id, UpdateProductReqDTO request) {
         var product = findProductById(id);
+
+        if (!product.getVersion().equals(request.getVersion())) {
+            throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
+        }
+
         if (!request.getCode().equals(product.getCode())) {
             if (productRepo.existsByCode(request.getCode())) {
                 throw new DuplicateException("Code Is Not Available");
