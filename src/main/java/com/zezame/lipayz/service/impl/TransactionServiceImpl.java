@@ -109,7 +109,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         }
 
         LocalDateTime now = LocalDateTime.now();
-        TransactionStatus status = null;
+        TransactionStatus status;
 
         switch (action) {
             case "ACCEPT" -> {
