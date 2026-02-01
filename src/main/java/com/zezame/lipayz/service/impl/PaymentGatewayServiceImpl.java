@@ -68,6 +68,11 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     @Override
     public UpdateResDTO updatePaymentGateway(String id, UpdatePGReqDTO request) {
         var paymentGateway = findPaymentGatewayById(id);
+
+        if (!paymentGateway.getVersion().equals(request.getVersion())) {
+            throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
+        }
+
         paymentGateway.setCode(request.getCode());
         paymentGateway.setName(request.getName());
         paymentGateway.setRate(request.getRate());
