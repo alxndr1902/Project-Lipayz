@@ -21,4 +21,7 @@ public class UpdatePGReqDTO {
     @NotNull(message = "Rate Is Required")
     @Min(value = 0, message = "Rate Minimum Is 0")
     private BigDecimal rate;
+
+    @NotNull
+    private Integer version;
 }
