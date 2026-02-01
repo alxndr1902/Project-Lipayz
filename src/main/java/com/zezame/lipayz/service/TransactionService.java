@@ -1,14 +1,16 @@
 package com.zezame.lipayz.service;
 
 import com.zezame.lipayz.dto.CommonResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.transaction.CreateTransactionReqDTO;
 import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface TransactionService {
-    List<TransactionResDTO> getTransactions();
+    PageRes<TransactionResDTO> getTransactions(Pageable pageable);
 
     CreateTransactionResDTO createTransaction(CreateTransactionReqDTO request);
 

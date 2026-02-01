@@ -11,4 +11,8 @@ public class ProductResDTO {
     private UUID id;
     private String name;
     private Integer version;
+
+    public ProductResDTO(UUID id) {
+        this.id = id;
+    }
 }

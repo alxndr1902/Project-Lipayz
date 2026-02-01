@@ -3,7 +3,9 @@ package com.zezame.lipayz.service;
 import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.paymentgateway.*;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -20,7 +22,7 @@ public interface PaymentGatewayService {
 
     CreateResDTO registerPaymentGatewayAdmin(String paymentGatewayId, CreatePGAdminReqDTO request);
 
-    List<PaymentGatewayAdminResDTO> getPaymentGatewayAdmins(String paymentGatewayId);
+    PageRes<PaymentGatewayAdminResDTO> getPaymentGatewayAdmins(String paymentGatewayId, Pageable pageable);
 
     PaymentGatewayAdminResDTO getPaymentGatewayAdminById(String id);
 

@@ -1,12 +1,15 @@
 package com.zezame.lipayz.controller;
 
 import com.zezame.lipayz.dto.CommonResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.transaction.CreateTransactionReqDTO;
 import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
 import com.zezame.lipayz.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,8 +24,10 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<List<TransactionResDTO>> getTransactions() {
-        var response = transactionService.getTransactions();
+    public ResponseEntity<PageRes<TransactionResDTO>> getTransactions(@RequestParam(defaultValue = "0") Integer page,
+                                                                      @RequestParam(defaultValue = "10") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var response = transactionService.getTransactions(pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

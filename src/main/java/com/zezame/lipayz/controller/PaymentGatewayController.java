@@ -3,10 +3,13 @@ package com.zezame.lipayz.controller;
 import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.paymentgateway.*;
 import com.zezame.lipayz.service.PaymentGatewayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,8 +69,11 @@ public class PaymentGatewayController {
 
     @GetMapping("{paymentGatewayId}/admins")
     @PreAuthorize("hasRole('SA')")
-    public ResponseEntity<List<PaymentGatewayAdminResDTO>> getPaymentGatewayAdmins(@PathVariable String paymentGatewayId) {
-        var response = paymentGatewayService.getPaymentGatewayAdmins(paymentGatewayId);
+    public ResponseEntity<PageRes<PaymentGatewayAdminResDTO>> getPaymentGatewayAdmins(@RequestParam(defaultValue = "0") Integer page,
+                                                                                      @RequestParam(defaultValue = "10") Integer size,
+                                                                                      @PathVariable String paymentGatewayId) {
+        Pageable pageable = PageRequest.of(page, size);
+        var response = paymentGatewayService.getPaymentGatewayAdmins(paymentGatewayId, pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -78,7 +84,7 @@ public class PaymentGatewayController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("{paymentGatewayId}/admins/{id}")
+    @DeleteMapping("admins/{id}")
     @PreAuthorize("hasRole('SA')")
     public ResponseEntity<CommonResDTO> deletePaymentGatewayAdmin(@PathVariable String id) {
         var response = paymentGatewayService.deletePaymentGatewayAdmin(id);

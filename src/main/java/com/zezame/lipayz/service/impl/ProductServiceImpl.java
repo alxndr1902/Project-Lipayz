@@ -3,43 +3,45 @@ package com.zezame.lipayz.service.impl;
 import com.zezame.lipayz.constant.Message;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.product.CreateProductReqDTO;
 import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.exceptiohandler.exception.OptimisticLockException;
-import com.zezame.lipayz.mapper.ProductMapper;
+import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.repo.ProductRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class ProductServiceImpl extends BaseService implements ProductService {
     private final ProductRepo productRepo;
-    private final ProductMapper productMapper;
+    private final PageMapper pageMapper;
 
     @Override
-    public List<ProductResDTO> getProducts() {
-        List<Product> products = productRepo.findAll();
-        List<ProductResDTO> DTOs = new ArrayList<>();
-        for (Product product : products) {
-            DTOs.add(productMapper.mapToDto(product));
-        }
-        return DTOs;
+    public PageRes<ProductResDTO> getProducts(Pageable pageable) {
+        Page<Product> products = productRepo.findAll(pageable);
+        return pageMapper.toPageResponse(products, this::mapToDto);
     }
 
     @Override
     public ProductResDTO getProductById(String id) {
         var product = findProductById(id);
-        return productMapper.mapToDto(product);
+        var dto = mapToDto(product);
+        return dto;
+    }
+
+    private ProductResDTO mapToDto(Product product) {
+        var dto = new ProductResDTO(product.getId(), product.getName(), product.getVersion());
+        return dto;
     }
 
     @Override

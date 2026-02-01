@@ -2,14 +2,16 @@ package com.zezame.lipayz.service;
 
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.product.CreateProductReqDTO;
 import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ProductService {
-    List<ProductResDTO> getProducts();
+    PageRes<ProductResDTO> getProducts(Pageable pageable);
 
     ProductResDTO getProductById(String id);
 

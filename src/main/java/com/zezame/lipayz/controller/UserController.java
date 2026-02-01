@@ -2,11 +2,14 @@ package com.zezame.lipayz.controller;
 
 import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.user.CreateUserReqDTO;
 import com.zezame.lipayz.dto.user.UserResDTO;
 import com.zezame.lipayz.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +25,10 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('SA')")
-    public ResponseEntity<List<UserResDTO>> getUsers(@RequestParam(required = false) String roleCode) {
-        List<UserResDTO> responses = userService.getUsers(roleCode);
+    public ResponseEntity<PageRes<UserResDTO>> getUsers(@RequestParam(defaultValue = "0") Integer page,
+                                                        @RequestParam(defaultValue = "10") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var responses = userService.getUsers(pageable);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 

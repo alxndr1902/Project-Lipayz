@@ -4,25 +4,28 @@ import com.zezame.lipayz.constant.Message;
 import com.zezame.lipayz.constant.RoleCode;
 import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.user.CreateUserReqDTO;
 import com.zezame.lipayz.dto.user.UserResDTO;
 import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
-import com.zezame.lipayz.mapper.RoleRepo;
+import com.zezame.lipayz.mapper.PageMapper;
+import com.zezame.lipayz.repo.RoleRepo;
 import com.zezame.lipayz.mapper.UserMapper;
 import com.zezame.lipayz.model.User;
 import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +33,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
     private final UserMapper userMapper;
+    private final PageMapper pageMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -47,13 +51,9 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @Override
-    public List<UserResDTO> getUsers(String roleCode) {
-        List<User> users = userRepo.findAll();
-        List<UserResDTO> DTOs = new ArrayList<>();
-        for (var user : users) {
-            DTOs.add(userMapper.mapToDto(user));
-        }
-        return DTOs;
+    public PageRes<UserResDTO> getUsers(Pageable pageable) {
+        Page<User> users = userRepo.findAll(pageable);
+        return pageMapper.toPageResponse(users, userMapper::mapToDto);
     }
 
     @Override

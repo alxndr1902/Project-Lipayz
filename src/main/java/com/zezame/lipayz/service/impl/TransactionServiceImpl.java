@@ -4,6 +4,7 @@ import com.zezame.lipayz.constant.Message;
 import com.zezame.lipayz.constant.RoleCode;
 import com.zezame.lipayz.constant.TransactionStatusCode;
 import com.zezame.lipayz.dto.CommonResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.transaction.CreateTransactionReqDTO;
 import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
@@ -11,6 +12,7 @@ import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
 import com.zezame.lipayz.exceptiohandler.exception.ForbiddenException;
 import com.zezame.lipayz.exceptiohandler.exception.InvalidActionException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
+import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.mapper.TransactionMapper;
 import com.zezame.lipayz.model.History;
 import com.zezame.lipayz.model.Transaction;
@@ -20,6 +22,8 @@ import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.TransactionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -37,15 +41,12 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     private final TransactionStatusRepo transactionStatusRepo;
     private final HistoryRepo historyRepo;
     private final TransactionMapper transactionMapper;
+    private final PageMapper pageMapper;
 
     @Override
-    public List<TransactionResDTO> getTransactions() {
-        List<Transaction> transactions = transactionRepo.findAll();
-        List<TransactionResDTO> DTOs = new ArrayList<>();
-        for (var transaction : transactions) {
-            DTOs.add(transactionMapper.mapToDto(transaction));
-        }
-        return DTOs;
+    public PageRes<TransactionResDTO> getTransactions(Pageable pageable) {
+        Page<Transaction> transactions = transactionRepo.findAll(pageable);
+        return pageMapper.toPageResponse(transactions, transactionMapper::mapToDto);
     }
 
     @Override

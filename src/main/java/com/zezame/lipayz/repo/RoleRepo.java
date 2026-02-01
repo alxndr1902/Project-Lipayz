@@ -1,4 +1,4 @@
-package com.zezame.lipayz.mapper;
+package com.zezame.lipayz.repo;
 
 import com.zezame.lipayz.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;

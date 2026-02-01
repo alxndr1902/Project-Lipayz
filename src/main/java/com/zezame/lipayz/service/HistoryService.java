@@ -1,9 +1,9 @@
 package com.zezame.lipayz.service;
 
 import com.zezame.lipayz.dto.history.HistoryResDTO;
-
-import java.util.List;
+import com.zezame.lipayz.dto.pagination.PageRes;
+import org.springframework.data.domain.Pageable;
 
 public interface HistoryService {
-    List<HistoryResDTO> getHistories();
+    PageRes<HistoryResDTO> getHistories(Pageable pageable);
 }

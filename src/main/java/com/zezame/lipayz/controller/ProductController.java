@@ -2,12 +2,15 @@ package com.zezame.lipayz.controller;
 
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
+import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.product.CreateProductReqDTO;
 import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
 import com.zezame.lipayz.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +25,10 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResDTO>> getProducts() {
-        var response = productService.getProducts();
+    public ResponseEntity<PageRes<ProductResDTO>> getProducts(@RequestParam(defaultValue = "0") Integer page,
+                                                              @RequestParam(defaultValue = "10") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        var response = productService.getProducts(pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
