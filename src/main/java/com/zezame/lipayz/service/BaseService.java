@@ -59,7 +59,7 @@ public class BaseService {
     }
 
     @Autowired
-    private void setPrincipal(PrincipalService principalService) {
+    public void setPrincipal(PrincipalService principalService) {
         this.principalService = principalService;
     }
 }
