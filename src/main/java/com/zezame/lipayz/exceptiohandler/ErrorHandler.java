@@ -110,4 +110,12 @@ public class ErrorHandler {
 
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
+
+    @ExceptionHandler(InvalidActionException.class)
+    public ResponseEntity<?> handleInvalidActionException(InvalidActionException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
 }
