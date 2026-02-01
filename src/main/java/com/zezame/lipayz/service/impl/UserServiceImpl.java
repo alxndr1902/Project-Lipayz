@@ -4,7 +4,6 @@ import com.zezame.lipayz.constant.Message;
 import com.zezame.lipayz.constant.RoleCode;
 import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
-import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
 import com.zezame.lipayz.dto.user.CreateUserReqDTO;
 import com.zezame.lipayz.dto.user.UserResDTO;
 import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
