@@ -9,13 +9,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("transaction")
+@RequestMapping("transactions")
 public class TransactionController {
     private final TransactionService transactionService;
 
@@ -26,12 +27,14 @@ public class TransactionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CUST')")
     public ResponseEntity<CreateTransactionResDTO> createTransaction(@RequestBody @Valid CreateTransactionReqDTO request) {
         var response = transactionService.createTransaction(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("{id}")
+    @PreAuthorize("hasRole('PGA')")
     public ResponseEntity<CommonResDTO> processTransaction(@PathVariable String id,
                                                            @RequestParam String action) {
         var response = transactionService.processTransaction(id, action);

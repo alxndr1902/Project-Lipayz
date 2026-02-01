@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<List<UserResDTO>> getUsers(@RequestParam(required = false) String roleCode) {
         List<UserResDTO> responses = userService.getUsers(roleCode);
         return new ResponseEntity<>(responses, HttpStatus.OK);
@@ -38,6 +40,7 @@ public class UserController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<CommonResDTO> deleteCustomer(@PathVariable String id) {
         var response = userService.deleteCustomer(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

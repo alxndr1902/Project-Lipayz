@@ -9,9 +9,12 @@ import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
 import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
 import com.zezame.lipayz.exceptiohandler.exception.ForbiddenException;
+import com.zezame.lipayz.exceptiohandler.exception.InvalidActionException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.TransactionMapper;
+import com.zezame.lipayz.model.History;
 import com.zezame.lipayz.model.Transaction;
+import com.zezame.lipayz.model.TransactionStatus;
 import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.TransactionService;
@@ -20,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +35,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     private final PaymentGatewayRepo paymentGatewayRepo;
     private final UserRepo userRepo;
     private final TransactionStatusRepo transactionStatusRepo;
+    private final HistoryRepo historyRepo;
     private final TransactionMapper transactionMapper;
 
     @Override
@@ -65,6 +70,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         var transactionStatus = transactionStatusRepo.findByCode(TransactionStatusCode.PRCS.name())
                 .orElseThrow(() -> new NotFoundException("Transaction Status Is Not Found"));
 
+        LocalDateTime now = LocalDateTime.now();
+
         var transaction = new Transaction();
         transaction.setCode(generateRandomAlphaNumeric(20));
         transaction.setProduct(product);
@@ -77,7 +84,11 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         BigDecimal totalPrice = request.getNominal().add(paymentGateway.getRate());
 
         transaction.setTotalPrice(totalPrice);
-        var savedTransaction = transactionRepo.save(prepareCreate(transaction));
+        var savedTransaction = transactionRepo.save(prepareCreate(transaction, now));
+
+        var history = createHistory(transactionStatus, transaction, now);
+        historyRepo.save(history);
+
         return new CreateTransactionResDTO(savedTransaction.getId(), savedTransaction.getCode(),
                 Message.CREATED.getDescription());
     }
@@ -97,20 +108,33 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
             throw new ConflictException("Transaction Is Already Processed");
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        TransactionStatus status = null;
+
         switch (action) {
             case "ACCEPT" -> {
-                var status = transactionStatusRepo.findByCode(TransactionStatusCode.SCS.name())
+                status = transactionStatusRepo.findByCode(TransactionStatusCode.SCS.name())
                         .orElseThrow(() -> new NotFoundException("Transaction Status Is Not Found"));
                 transaction.setTransactionStatus(status);
             }
             case "REJECT" -> {
-                var status = transactionStatusRepo.findByCode(TransactionStatusCode.RJC.name())
+                status = transactionStatusRepo.findByCode(TransactionStatusCode.RJC.name())
                         .orElseThrow(() -> new NotFoundException("Transaction Status Is Not Found"));
                 transaction.setTransactionStatus(status);
             }
-            default -> throw new ForbiddenException("Wrong Parameter");
+            default -> throw new InvalidActionException("Wrong Parameter");
         }
-        transactionRepo.saveAndFlush(transaction);
+        transactionRepo.saveAndFlush(prepareUpdate(transaction, now));
+
+        var history = createHistory(status, transaction, now);
+        historyRepo.save(history);
         return new CommonResDTO(Message.UPDATED.getDescription());
+    }
+
+    private History createHistory(TransactionStatus status, Transaction transaction, LocalDateTime now) {
+        var history = new History();
+        history.setTransaction(transaction);
+        history.setTransactionStatus(status);
+        return prepareCreate(history, now);
     }
 }

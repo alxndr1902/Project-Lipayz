@@ -17,23 +17,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("payment-gateways")
-@PreAuthorize("hasRole('SA')")
 public class PaymentGatewayController {
     private final PaymentGatewayService paymentGatewayService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('SA', 'CUST')")
     public ResponseEntity<List<PaymentGatewayResDTO>> getPaymentGateways() {
         var response = paymentGatewayService.getPaymentGateways();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<PaymentGatewayResDTO> getPaymentGateway(@PathVariable String id) {
+    @PreAuthorize("hasAnyRole('SA', 'CUST')")
+    public ResponseEntity<PaymentGatewayResDTO> getPaymentGatewayById(@PathVariable String id) {
         var response = paymentGatewayService.getPaymentGatewayById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<UpdateResDTO> updatePaymentGateway(@PathVariable String id,
                                                              @RequestBody @Valid UpdatePGReqDTO request) {
         var response = paymentGatewayService.updatePaymentGateway(id, request);
@@ -41,18 +43,21 @@ public class PaymentGatewayController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<CreateResDTO> registerPaymentGateway(@RequestBody @Valid CreatePGReqDTO request) {
         var response = paymentGatewayService.registerPaymentGateway(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<CommonResDTO> deletePaymentGateway(@PathVariable String id) {
         var response = paymentGatewayService.deletePaymentGateway(id);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("{paymentGatewayId}/admins")
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<CreateResDTO> registerPaymentGatewayAdmin(@PathVariable String paymentGatewayId,
                                                                     @RequestBody @Valid CreatePGAdminReqDTO request) {
         var response = paymentGatewayService.registerPaymentGatewayAdmin(paymentGatewayId, request);
@@ -60,12 +65,21 @@ public class PaymentGatewayController {
     }
 
     @GetMapping("{paymentGatewayId}/admins")
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<List<PaymentGatewayAdminResDTO>> getPaymentGatewayAdmins(@PathVariable String paymentGatewayId) {
         var response = paymentGatewayService.getPaymentGatewayAdmins(paymentGatewayId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("admins/{id}")
+    @PreAuthorize("hasRole('SA')")
+    public ResponseEntity<PaymentGatewayAdminResDTO> getPaymentGatewayAdminById(@PathVariable String id) {
+        var response = paymentGatewayService.getPaymentGatewayAdminById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @DeleteMapping("{paymentGatewayId}/admins/{id}")
+    @PreAuthorize("hasRole('SA')")
     public ResponseEntity<CommonResDTO> deletePaymentGatewayAdmin(@PathVariable String id) {
         var response = paymentGatewayService.deletePaymentGatewayAdmin(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
