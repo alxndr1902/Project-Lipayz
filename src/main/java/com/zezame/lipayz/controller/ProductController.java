@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("products")
 public class ProductController {
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping
     public ResponseEntity<List<ProductResDTO>> getProducts() {
