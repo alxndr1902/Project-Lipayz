@@ -30,6 +30,12 @@ public class BaseService {
         return model;
     }
 
+    protected <T extends BaseModel> T prepareUpdate(T model, LocalDateTime now) {
+        model.setUpdatedAt(now);
+        model.setUpdatedBy(UUID.fromString(principalService.getPrincipal().getId()));
+        return model;
+    }
+
     protected UUID parseUUID(String request) {
         if (request == null || request.isBlank()) {
             throw new InvalidUUIDException("Id Is Required");
