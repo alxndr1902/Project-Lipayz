@@ -22,5 +22,7 @@ public interface PaymentGatewayService {
 
     List<PaymentGatewayAdminResDTO> getPaymentGatewayAdmins(String paymentGatewayId);
 
+    PaymentGatewayAdminResDTO getPaymentGatewayAdminById(String id);
+
     CommonResDTO deletePaymentGatewayAdmin(String id);
 }

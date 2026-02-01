@@ -8,6 +8,7 @@ import com.zezame.lipayz.dto.UpdateResDTO;
 import com.zezame.lipayz.dto.paymentgateway.*;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
+import com.zezame.lipayz.exceptiohandler.exception.OptimisticLockException;
 import com.zezame.lipayz.mapper.PaymentGatewayMapper;
 import com.zezame.lipayz.mapper.RoleRepo;
 import com.zezame.lipayz.model.PaymentGateway;
@@ -125,6 +126,12 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
             DTOs.add(paymentGatewayMapper.mapToDto(admin));
         }
         return DTOs;
+    }
+
+    @Override
+    public PaymentGatewayAdminResDTO getPaymentGatewayAdminById(String id) {
+        var paymentGatewayAdmin = findPaymentGatewayAdmin(id);
+        return paymentGatewayMapper.mapToDto(paymentGatewayAdmin);
     }
 
     @Override
