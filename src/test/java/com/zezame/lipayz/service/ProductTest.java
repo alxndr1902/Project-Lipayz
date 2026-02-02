@@ -41,7 +41,7 @@ public class ProductTest {
 
     @BeforeEach
     void setup() {
-        productService = new ProductServiceImpl(productRepo, pageMapper);
+        productService = new ProductServiceImpl(productRepo, transactionRepo, pageMapper);
     }
 
     @Mock
