@@ -2,6 +2,7 @@ package com.zezame.lipayz.controller;
 
 import com.zezame.lipayz.dto.auth.LoginRequestDTO;
 import com.zezame.lipayz.dto.auth.LoginResponseDTO;
+import com.zezame.lipayz.exceptiohandler.exception.ForbiddenException;
 import com.zezame.lipayz.service.JwtService;
 import com.zezame.lipayz.service.UserService;
 import jakarta.validation.Valid;
@@ -30,6 +31,10 @@ public class AuthController {
         authenticationManager.authenticate(auth);
 
         var user = userService.findByEmail(request.getEmail());
+
+        if (!user.getIsActivated()) {
+            throw new ForbiddenException("Please Activate Your Account First Before Logging In");
+        }
 
         var token = jwtService.generateToken(user.getId().toString(), user.getRole().getCode());
         return new ResponseEntity<>(new LoginResponseDTO(user.getFullName(),

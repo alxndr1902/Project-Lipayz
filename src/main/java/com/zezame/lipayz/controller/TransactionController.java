@@ -15,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("transactions")
@@ -31,15 +29,21 @@ public class TransactionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<TransactionResDTO> getTransactionById(@PathVariable String id) {
+        var response = transactionService.getTransactionById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PostMapping
-    @PreAuthorize("hasRole('CUST')")
+    @PreAuthorize("hasAuthority('CUST')")
     public ResponseEntity<CreateTransactionResDTO> createTransaction(@RequestBody @Valid CreateTransactionReqDTO request) {
         var response = transactionService.createTransaction(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PatchMapping("{id}")
-    @PreAuthorize("hasRole('PGA')")
+    @PreAuthorize("hasAuthority('PGA')")
     public ResponseEntity<CommonResDTO> processTransaction(@PathVariable String id,
                                                            @RequestParam String action) {
         var response = transactionService.processTransaction(id, action);

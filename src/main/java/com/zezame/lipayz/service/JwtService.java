@@ -30,7 +30,7 @@ public class JwtService {
     public String generateToken(String id, String roleCode) {
         var claims = new HashMap<String, Object>();
         claims.put("id", id);
-        claims.put("role", "ROLE_" + roleCode);
+        claims.put("role", roleCode);
 
         var jwtBuilder = Jwts.builder()
                 .setClaims(claims)

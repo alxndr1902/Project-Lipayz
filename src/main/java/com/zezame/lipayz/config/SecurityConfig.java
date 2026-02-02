@@ -1,10 +1,7 @@
 package com.zezame.lipayz.config;
 
-import com.zezame.lipayz.exceptiohandler.AuthAccessDeniedHandler;
-import com.zezame.lipayz.exceptiohandler.AuthEntryPoint;
 import com.zezame.lipayz.filter.TokenFilter;
 import com.zezame.lipayz.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,7 +12,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,9 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -64,21 +58,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   TokenFilter tokenFilter,
-                                                   AuthAccessDeniedHandler authAccessDeniedHandler) throws Exception {
+                                                   TokenFilter tokenFilter) throws Exception {
         http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
-                .sessionManagement(s ->
-                        s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .anyRequest().authenticated())
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authEntryPoint)
-                        .accessDeniedHandler(authAccessDeniedHandler));
+                .logout(AbstractHttpConfigurer::disable);
 
         http.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
 

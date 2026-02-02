@@ -26,4 +26,6 @@ public interface UserRepo extends JpaRepository<User, UUID> {
     Optional<User> findCustomerToActivate(@Param(value = "email") String email,
                                           @Param(value = "activationCode") String activationCode,
                                           @Param(value = "roleCode") String roleCode);
+
+    Optional<User> findByEmailAndActivationCodeEquals(String email, String activationCode);
 }

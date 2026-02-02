@@ -15,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("users")
@@ -24,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @PreAuthorize("hasRole('SA')")
+    @PreAuthorize("hasAuthority('SA')")
     public ResponseEntity<PageRes<UserResDTO>> getUsers(@RequestParam(defaultValue = "0") Integer page,
                                                         @RequestParam(defaultValue = "10") Integer size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -33,26 +31,26 @@ public class UserController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAuthority('SA')")
     public ResponseEntity<UserResDTO> getUser(@PathVariable String id) {
         var response = userService.getUserById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("register")
-    public ResponseEntity<CreateResDTO> registerCustomer(@RequestBody @Valid CreateUserReqDTO request) {
-        var response = userService.registerCustomer(request);
+    public ResponseEntity<CreateResDTO> registerUser(@RequestBody @Valid CreateUserReqDTO request) {
+        var response = userService.registerUser(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('SA')")
-    public ResponseEntity<CommonResDTO> deleteCustomer(@PathVariable String id) {
-        var response = userService.deleteCustomer(id);
+    public ResponseEntity<CommonResDTO> deleteUser(@PathVariable String id) {
+        var response = userService.deleteUser(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PatchMapping("activate")
-    public ResponseEntity<CommonResDTO> activateCustomer(@RequestParam String email,
+    @GetMapping("activate")
+    public ResponseEntity<CommonResDTO> activateUser(@RequestParam String email,
                                                          @RequestParam String code) {
         var response = userService.activateCustomer(email, code);
         return new ResponseEntity<>(response, HttpStatus.OK);

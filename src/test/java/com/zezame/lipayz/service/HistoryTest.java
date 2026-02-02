@@ -30,7 +30,7 @@ public class HistoryTest {
     @Mock
     private HistoryRepo historyRepo;
 
-    private PageMapper pageMapper = new PageMapper();
+    private final PageMapper pageMapper = new PageMapper();
 
     @BeforeEach
     void setup() {

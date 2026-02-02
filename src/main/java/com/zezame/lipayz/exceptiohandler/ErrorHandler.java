@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -114,6 +115,22 @@ public class ErrorHandler {
     @ExceptionHandler(InvalidActionException.class)
     public ResponseEntity<?> handleInvalidActionException(InvalidActionException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(InvalidNominalException.class)
+    public ResponseEntity<?> handleInvalidNominalException(InvalidNominalException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException e) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         var errorMessage = e.getMessage();
 
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);

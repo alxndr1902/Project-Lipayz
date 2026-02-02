@@ -11,25 +11,20 @@ import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.exceptiohandler.exception.OptimisticLockException;
 import com.zezame.lipayz.mapper.PageMapper;
-import com.zezame.lipayz.mapper.PaymentGatewayMapper;
-import com.zezame.lipayz.repo.RoleRepo;
 import com.zezame.lipayz.model.PaymentGateway;
 import com.zezame.lipayz.model.PaymentGatewayAdmin;
 import com.zezame.lipayz.model.User;
-import com.zezame.lipayz.repo.PaymentGatewayAdminRepo;
-import com.zezame.lipayz.repo.PaymentGatewayRepo;
-import com.zezame.lipayz.repo.UserRepo;
+import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.PaymentGatewayService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -38,23 +33,28 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
-    private final PaymentGatewayMapper paymentGatewayMapper;
+    private final TransactionRepo transactionRepo;
     private final PageMapper pageMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public List<PaymentGatewayResDTO> getPaymentGateways() {
-        List<PaymentGateway> paymentGateways = paymentGatewayRepo.findAll();
-        List<PaymentGatewayResDTO> DTOs = new ArrayList<>();
-        for (var paymentGateway : paymentGateways) {
-            DTOs.add(paymentGatewayMapper.mapToDto(paymentGateway));
-        }
-        return DTOs;
+    public PageRes<PaymentGatewayResDTO> getPaymentGateways(Pageable pageable) {
+        Page<PaymentGateway> paymentGateways = paymentGatewayRepo.findAll(pageable);
+        return pageMapper.toPageResponse(paymentGateways, this::mapToDto);
     }
 
     @Override
     public PaymentGatewayResDTO getPaymentGatewayById(String id) {
         var paymentGateway = findPaymentGatewayById(id);
-        return paymentGatewayMapper.mapToDto(paymentGateway);
+        return mapToDto(paymentGateway);
+    }
+
+    private PaymentGatewayResDTO mapToDto(PaymentGateway paymentGateway) {
+        var dto = new PaymentGatewayResDTO(
+                paymentGateway.getId(), paymentGateway.getCode(),
+                paymentGateway.getName(), paymentGateway.getVersion());
+
+        return dto;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         user.setRole(role);
         user.setIsActivated(true);
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getName());
         var savedUser = userRepo.save(prepareCreate(user, now));
 
@@ -123,23 +123,12 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
     }
 
-    @Override
-    public PageRes<PaymentGatewayAdminResDTO> getPaymentGatewayAdmins(String paymentGatewayId, Pageable pageable) {
-        Page<PaymentGatewayAdmin> admins = paymentGatewayAdminRepo.findAll(pageable);
-        return pageMapper.toPageResponse(admins, paymentGatewayMapper::mapToDto);
-    }
+    private PaymentGatewayAdminResDTO mapToDto(PaymentGatewayAdmin admin) {
+        var dto = new PaymentGatewayAdminResDTO(
+                admin.getId(), admin.getUser().getFullName(), admin.getUser().getRole().getName(),
+                admin.getPaymentGateway().getName(), admin.getVersion());
 
-    @Override
-    public PaymentGatewayAdminResDTO getPaymentGatewayAdminById(String id) {
-        var paymentGatewayAdmin = findPaymentGatewayAdmin(id);
-        return paymentGatewayMapper.mapToDto(paymentGatewayAdmin);
-    }
-
-    @Override
-    public CommonResDTO deletePaymentGatewayAdmin(String id) {
-        var PGAdmin = findPaymentGatewayAdmin(id);
-        paymentGatewayAdminRepo.delete(PGAdmin);
-        return new CommonResDTO(Message.DELETED.getDescription());
+        return dto;
     }
 
     private PaymentGateway findPaymentGatewayById(String id) {

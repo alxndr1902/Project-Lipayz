@@ -9,8 +9,6 @@ import com.zezame.lipayz.model.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import java.util.List;
-
 public interface UserService extends UserDetailsService {
     User findByEmail(String email);
 
@@ -18,9 +16,9 @@ public interface UserService extends UserDetailsService {
 
     UserResDTO getUserById(String id);
 
-    CreateResDTO registerCustomer(CreateUserReqDTO request);
+    CreateResDTO registerUser(CreateUserReqDTO request);
 
-    CommonResDTO deleteCustomer(String id);
+    CommonResDTO deleteUser(String id);
 
     CommonResDTO activateCustomer(String email, String code);
 }

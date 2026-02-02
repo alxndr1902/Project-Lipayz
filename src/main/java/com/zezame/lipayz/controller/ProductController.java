@@ -1,5 +1,6 @@
 package com.zezame.lipayz.controller;
 
+import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
@@ -15,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,17 +38,24 @@ public class ProductController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('SA')")
+    @PreAuthorize("hasAuthority('SA')")
     public ResponseEntity<CreateResDTO> createProduct(@RequestBody @Valid CreateProductReqDTO request) {
         var response = productService.createProduct(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasRole('SA')")
+    @PreAuthorize("hasAuthority('SA')")
     public ResponseEntity<UpdateResDTO> updateProduct(@PathVariable String id,
                                                       @RequestBody @Valid UpdateProductReqDTO request) {
         var response = productService.updateProduct(id, request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAuthority('SA')")
+    public ResponseEntity<CommonResDTO> updateProduct(@PathVariable String id) {
+        var response = productService.deleteProduct(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

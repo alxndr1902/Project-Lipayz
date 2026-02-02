@@ -7,10 +7,10 @@ import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface TransactionService {
     PageRes<TransactionResDTO> getTransactions(Pageable pageable);
+
+    TransactionResDTO getTransactionById(String id);
 
     CreateTransactionResDTO createTransaction(CreateTransactionReqDTO request);
 
