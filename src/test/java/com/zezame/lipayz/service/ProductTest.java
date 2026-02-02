@@ -1,13 +1,11 @@
 package com.zezame.lipayz.service;
 
-import com.zezame.lipayz.dto.pagination.PageMeta;
-import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.product.CreateProductReqDTO;
-import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.repo.ProductRepo;
+import com.zezame.lipayz.repo.TransactionRepo;
 import com.zezame.lipayz.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
