@@ -34,6 +34,9 @@ public class ProductTest {
     @Mock
     private ProductRepo productRepo;
 
+    @Mock
+    private TransactionRepo transactionRepo;
+
     private PageMapper pageMapper = new PageMapper();
 
     @BeforeEach
