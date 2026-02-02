@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome to Our Service</title>
+</head>
+<body>
+<h1>Welcome, <span th:text="${fullName}"></span>!</h1>
+<p>Thank you for joining us. Please activate your account by clicking the link below.</p>
+<a th:href="${activationLink}">Activate Your Account</a>
+</body>
+</html>
