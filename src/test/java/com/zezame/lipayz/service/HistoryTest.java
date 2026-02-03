@@ -104,5 +104,6 @@ public class HistoryTest {
         Assertions.assertEquals(id, result.getData().getFirst().getId());
 
         Mockito.verify(historyRepo, Mockito.times(1)).findByCustomer(user.getId().toString(), pageable);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
     }
 }
