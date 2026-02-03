@@ -28,9 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,9 +52,6 @@ public class PaymentGatewayTest {
 
     @Mock
     private PageMapper pageMapper;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
 
     @Mock
     private PrincipalService principalService;

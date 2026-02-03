@@ -9,10 +9,8 @@ import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.repo.ProductRepo;
-import com.zezame.lipayz.repo.TransactionRepo;
 import com.zezame.lipayz.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,9 +33,6 @@ public class ProductTest {
 
     @Mock
     private ProductRepo productRepo;
-
-    @Mock
-    private TransactionRepo transactionRepo;
 
     @Mock
     private PageMapper pageMapper;
