@@ -52,9 +52,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         Page<Transaction> transactions = null;
 
         switch (user.getRole().getCode()) {
-            case "CUST" -> {
-                transactions = transactionRepo.findByCustomer(pageable, user);
-            }
+            case "CUST" -> transactions = transactionRepo.findByCustomer(pageable, user);
             case "PGA" -> {
                 var pga = paymentGatewayAdminRepo.findByUser(user);
                 transactions = transactionRepo.findByPaymentGateway(pageable, pga.getPaymentGateway());

@@ -30,9 +30,7 @@ public class HistoryServiceImpl extends BaseService implements HistoryService {
         Page<History> histories = null;
 
         switch (user.getRole().getCode()) {
-            case "CUST" -> {
-                histories = historyRepo.findByCustomer(user, pageable);
-            }
+            case "CUST" -> histories = historyRepo.findByCustomer(user, pageable);
             case "PGA" -> {
                 var pga = paymentGatewayAdminRepo.findByUser(user);
                 histories = historyRepo.findByPaymentGateway(pga.getPaymentGateway(), pageable);
