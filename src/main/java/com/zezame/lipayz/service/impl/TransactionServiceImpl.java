@@ -38,6 +38,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     private final ProductRepo productRepo;
     private final PaymentGatewayRepo paymentGatewayRepo;
     private final UserRepo userRepo;
+    private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final TransactionStatusRepo transactionStatusRepo;
     private final HistoryRepo historyRepo;
     private final PageMapper pageMapper;
@@ -46,11 +47,21 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
 
     @Override
     public PageRes<TransactionResDTO> getTransactions(Pageable pageable) {
-        var id = parseUUID(principalService.getPrincipal().getId());
-        var user = userRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
+        var user = getLoginUser(userRepo);
 
-        Page<Transaction> transactions = transactionRepo.findAll(pageable);
+        Page<Transaction> transactions = null;
+
+        switch (user.getRole().getCode()) {
+            case "CUST" -> {
+                transactions = transactionRepo.findByCustomer(pageable, user);
+            }
+            case "PGA" -> {
+                var pga = paymentGatewayAdminRepo.findByUser(user);
+                transactions = transactionRepo.findByPaymentGateway(pageable, pga.getPaymentGateway());
+            }
+            case "SA" -> transactions = transactionRepo.findAll(pageable);
+        }
+
         return pageMapper.toPageResponse(transactions, this::mapToDto);
     }
 
