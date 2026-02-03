@@ -113,6 +113,7 @@ public class ProductTest {
         Assertions.assertEquals(id, result.getData().getFirst().getId());
 
         Mockito.verify(productRepo, Mockito.atLeast(1)).findAll(pageable);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
     }
 
     @Test
