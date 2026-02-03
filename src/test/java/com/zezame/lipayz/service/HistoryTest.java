@@ -93,8 +93,8 @@ public class HistoryTest {
 
         Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
                 .thenReturn(new PageRes<>(
-                        List.of(new HistoryResDTO(id, null, null, null)),
-                        new PageMeta(0, 10, histories.size())
+                        List.of(new HistoryResDTO(savedHistory.getId(), null, null, null)),
+                        new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), histories.size())
                 ));
 
         var result = historyService.getHistories(pageable);
