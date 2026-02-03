@@ -107,8 +107,8 @@ public class ProductTest {
 
         Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
                 .thenReturn(new PageRes<>(
-                        List.of(new ProductResDTO(id, null, null)),
-                        new PageMeta(0, 10, products.size())
+                        List.of(new ProductResDTO(savedProduct.getId(), null, null)),
+                        new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), products.size())
                 ));
 
         var result = productService.getProducts(pageable);
