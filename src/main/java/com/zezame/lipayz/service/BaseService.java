@@ -4,7 +4,9 @@ import com.zezame.lipayz.constant.RoleCode;
 import com.zezame.lipayz.exceptiohandler.exception.InvalidUUIDException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.model.BaseModel;
+import com.zezame.lipayz.model.User;
 import com.zezame.lipayz.repo.RoleRepo;
+import com.zezame.lipayz.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
@@ -44,6 +46,7 @@ public class BaseService {
     protected <T extends BaseModel> T prepareCreate(T model, LocalDateTime now) {
         model.setId(UUID.randomUUID());
         model.setCreatedAt(now);
+        model.setCreatedBy(UUID.fromString(principalService.getPrincipal().getId()));
         return model;
     }
 
@@ -79,6 +82,13 @@ public class BaseService {
             result.append(chars.charAt(index));
         }
         return result.toString();
+    }
+
+    protected User getLoginUser(UserRepo userRepo) {
+        var id = parseUUID(principalService.getPrincipal().getId());
+
+        return userRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
     }
 
     @Autowired
