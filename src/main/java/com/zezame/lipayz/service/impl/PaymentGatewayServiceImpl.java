@@ -81,6 +81,12 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
             throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
         }
 
+        if (!paymentGateway.getCode().equals(request.getCode())) {
+            if (paymentGatewayRepo.existsByCode(request.getCode())) {
+                throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
+            }
+        }
+
         paymentGateway.setCode(request.getCode());
         paymentGateway.setName(request.getName());
         paymentGateway.setRate(request.getRate());
