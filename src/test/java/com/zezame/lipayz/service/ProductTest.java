@@ -41,7 +41,7 @@ public class ProductTest {
 
     @Mock
     private PageMapper pageMapper;
-    
+
     @Mock
     private PrincipalService principalService;
 
