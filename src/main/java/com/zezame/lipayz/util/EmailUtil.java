@@ -1,5 +1,6 @@
 package com.zezame.lipayz.util;
 
+import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.model.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -39,7 +40,7 @@ public class EmailUtil {
         Context context = new Context();
         context.setVariable("fullName", user.getFullName());
         context.setVariable("activationLink", activationLink);
-        String htmlContent = templateEngine.process("welcome.html", context);
+        String htmlContent = templateEngine.process("Welcome.html", context);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -49,6 +50,62 @@ public class EmailUtil {
         helper.setText(htmlContent);
         helper.setFrom(fromMail);
 
+        helper.setText(htmlContent, true);
+
+        try {
+            mailSender.send(message);
+        } catch (MailException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void sendTransactionEmail(Transaction transaction) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("customerName", transaction.getCustomer().getFullName());
+        context.setVariable("code", transaction.getCode());
+        context.setVariable("productName", transaction.getProduct().getName());
+        context.setVariable("paymentGatewayName", transaction.getPaymentGateway().getName());
+        context.setVariable("virtualAccountNumber", transaction.getVirtualAccountNumber());
+        context.setVariable("transactionStatusName", transaction.getTransactionStatus().getName());
+        context.setVariable("adminRate", transaction.getPaymentGateway().getRate());
+        context.setVariable("totalPrice", transaction.getTotalPrice());
+        context.setVariable("createdAt", transaction.getCreatedAt());
+        String htmlContent = templateEngine.process("create-transaction.html", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(transaction.getCustomer().getEmail());
+        helper.setSubject("Transaction Created");
+        helper.setFrom(fromMail);
+        helper.setText(htmlContent, true);
+
+        try {
+            mailSender.send(message);
+        } catch (MailException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void sendUpdateTransactionEmail(Transaction transaction) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("customerName", transaction.getCustomer().getFullName());
+        context.setVariable("code", transaction.getCode());
+        context.setVariable("productName", transaction.getProduct().getName());
+        context.setVariable("paymentGatewayName", transaction.getPaymentGateway().getName());
+        context.setVariable("virtualAccountNumber", transaction.getVirtualAccountNumber());
+        context.setVariable("transactionStatusName", transaction.getTransactionStatus().getName());
+        context.setVariable("adminRate", transaction.getPaymentGateway().getRate());
+        context.setVariable("totalPrice", transaction.getTotalPrice());
+        context.setVariable("createdAt", transaction.getCreatedAt());
+        String htmlContent = templateEngine.process("UpdateTransaction.html", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(transaction.getCustomer().getEmail());
+        helper.setSubject("Transaction Updated");
+        helper.setFrom(fromMail);
         helper.setText(htmlContent, true);
 
         try {

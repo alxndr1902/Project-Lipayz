@@ -4,8 +4,6 @@ import com.zezame.lipayz.constant.RoleCode;
 import com.zezame.lipayz.exceptiohandler.exception.InvalidUUIDException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.model.BaseModel;
-import com.zezame.lipayz.model.User;
-import com.zezame.lipayz.repo.RoleRepo;
 import com.zezame.lipayz.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,9 +14,6 @@ import java.util.UUID;
 public class BaseService {
     protected PrincipalService principalService;
 
-    @Autowired
-    private RoleRepo roleRepo;
-
     protected <T extends BaseModel> T prepareCreate(T model) {
         model.setId(UUID.randomUUID());
         model.setCreatedAt(LocalDateTime.now());
@@ -26,18 +21,18 @@ public class BaseService {
         return model;
     }
 
-    protected <T extends BaseModel> T prepareRegister(T model) {
-        var system = roleRepo.findByCode(RoleCode.SYS.name())
-                        .orElseThrow(() -> new NotFoundException("Role Is Not Found"));
+    protected <T extends BaseModel> T prepareRegister(T model, UserRepo userRepo) {
+        var system = userRepo.findSystem()
+                        .orElseThrow(() -> new NotFoundException("System Is Not Found"));
         model.setId(UUID.randomUUID());
         model.setCreatedAt(LocalDateTime.now());
         model.setCreatedBy(system.getId());
         return model;
     }
 
-    protected <T extends BaseModel> T prepareActivate(T model) {
-        var system = roleRepo.findByCode(RoleCode.SYS.name())
-                .orElseThrow(() -> new NotFoundException("Role Is Not Found"));
+    protected <T extends BaseModel> T prepareActivate(T model, UserRepo userRepo) {
+        var system = userRepo.findSystem()
+                .orElseThrow(() -> new NotFoundException("System Is Not Found"));
         model.setUpdatedAt(LocalDateTime.now());
         model.setUpdatedBy(system.getId());
         return model;
@@ -82,13 +77,6 @@ public class BaseService {
             result.append(chars.charAt(index));
         }
         return result.toString();
-    }
-
-    protected User getLoginUser(UserRepo userRepo) {
-        var id = parseUUID(principalService.getPrincipal().getId());
-
-        return userRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
     }
 
     @Autowired
