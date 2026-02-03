@@ -117,7 +117,7 @@ public class ProductTest {
     }
 
     @Test
-    public void shouldUpdateProduct_WhenDataValid() {
+    public void shouldUpdateProduct_whenDataValid() {
         productService.setPrincipal(principalService);
         var auth = new AuthorizationPojo(UUID.randomUUID().toString());
         Mockito.when(principalService.getPrincipal()).thenReturn(auth);
