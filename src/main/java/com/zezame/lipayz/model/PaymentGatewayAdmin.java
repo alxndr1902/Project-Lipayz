@@ -9,7 +9,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "payment_gateway_admins")
 public class PaymentGatewayAdmin extends BaseModel{
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
