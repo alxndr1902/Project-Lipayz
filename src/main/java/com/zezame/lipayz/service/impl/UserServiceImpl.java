@@ -12,7 +12,6 @@ import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.PageMapper;
-import com.zezame.lipayz.model.BaseModel;
 import com.zezame.lipayz.model.Role;
 import com.zezame.lipayz.model.User;
 import com.zezame.lipayz.pojo.ActivateCustomerEmailPojo;
@@ -34,9 +33,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service

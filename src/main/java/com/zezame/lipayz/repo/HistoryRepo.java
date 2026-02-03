@@ -1,15 +1,12 @@
 package com.zezame.lipayz.repo;
 
 import com.zezame.lipayz.model.History;
-import com.zezame.lipayz.model.PaymentGateway;
-import com.zezame.lipayz.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface HistoryRepo extends JpaRepository<History, UUID> {

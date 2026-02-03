@@ -1,6 +1,5 @@
 package com.zezame.lipayz.service;
 
-import com.zezame.lipayz.constant.RoleCode;
 import com.zezame.lipayz.exceptiohandler.exception.InvalidUUIDException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.model.BaseModel;

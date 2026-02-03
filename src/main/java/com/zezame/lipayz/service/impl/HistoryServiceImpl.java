@@ -2,7 +2,6 @@ package com.zezame.lipayz.service.impl;
 
 import com.zezame.lipayz.dto.history.HistoryResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
-import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.History;
 import com.zezame.lipayz.repo.HistoryRepo;

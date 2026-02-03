@@ -1,6 +1,5 @@
 package com.zezame.lipayz.repo;
 
-import com.zezame.lipayz.model.PaymentGateway;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.model.User;

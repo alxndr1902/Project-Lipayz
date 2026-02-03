@@ -15,7 +15,6 @@ import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.*;
 import com.zezame.lipayz.pojo.TransactionEmailPojo;
-import com.zezame.lipayz.pojo.UpdateTransactionEmailPojo;
 import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.TransactionService;
