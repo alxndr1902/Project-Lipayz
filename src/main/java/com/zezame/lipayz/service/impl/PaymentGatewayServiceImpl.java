@@ -131,14 +131,6 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
     }
 
-    private PaymentGatewayAdminResDTO mapToDto(PaymentGatewayAdmin admin) {
-        var dto = new PaymentGatewayAdminResDTO(
-                admin.getId(), admin.getUser().getFullName(), admin.getUser().getRole().getName(),
-                admin.getPaymentGateway().getName(), admin.getVersion());
-
-        return dto;
-    }
-
     private PaymentGateway findPaymentGatewayById(String id) {
         var paymentGatewayId = parseUUID(id);
         return paymentGatewayRepo.findById(paymentGatewayId)
