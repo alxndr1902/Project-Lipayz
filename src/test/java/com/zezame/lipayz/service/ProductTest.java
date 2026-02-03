@@ -114,7 +114,7 @@ public class ProductTest {
         var result = productService.getProducts(pageable);
 
         Assertions.assertEquals(products.size(), result.getData().size());
-        Assertions.assertEquals(id,  result.getData().getFirst().getId());
+        Assertions.assertEquals(id, result.getData().getFirst().getId());
 
         Mockito.verify(productRepo, Mockito.atLeast(1)).findAll(pageable);
     }
