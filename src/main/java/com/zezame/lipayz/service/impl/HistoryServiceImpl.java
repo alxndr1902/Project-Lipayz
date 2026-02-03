@@ -25,17 +25,14 @@ public class HistoryServiceImpl extends BaseService implements HistoryService {
 
     @Override
     public PageRes<HistoryResDTO> getHistories(Pageable pageable) {
-        var user = getLoginUser(userRepo);
-
+        String role = principalService.getPrincipal().getRoleCode();
+        String id = principalService.getPrincipal().getId();
         Page<History> histories = null;
 
-        switch (user.getRole().getCode()) {
-            case "CUST" -> histories = historyRepo.findByCustomer(user, pageable);
-            case "PGA" -> {
-                var pga = paymentGatewayAdminRepo.findByUser(user);
-                histories = historyRepo.findByPaymentGateway(pga.getPaymentGateway(), pageable);
-            }
-            case "SA" -> historyRepo.findAll(pageable);
+        switch (role) {
+            case "CUST" -> histories = historyRepo.findByCustomer(id, pageable);
+            case "PGA" -> histories = historyRepo.findByPaymentGateway(id, pageable);
+            case "SA" -> histories = historyRepo.findAll(pageable);
         }
 
         return pageMapper.toPageResponse(histories, this::mapToDto);

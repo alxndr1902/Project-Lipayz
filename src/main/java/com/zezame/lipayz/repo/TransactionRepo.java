@@ -16,18 +16,19 @@ public interface TransactionRepo extends JpaRepository<Transaction, UUID> {
     @Query("""
         SELECT t
         FROM Transaction t
-        WHERE t.customer = :customer
+        WHERE t.customer.id = :id
         """)
     Page<Transaction> findByCustomer (Pageable pageable,
-                                      @Param("customer") User customer);
+                                      @Param("id") String id);
 
     @Query("""
            SELECT t
            FROM Transaction t
-           WHERE t.paymentGateway = :paymentGateway
+           INNER JOIN PaymentGatewayAdmin pga ON pga.paymentGateway = t.paymentGateway
+           WHERE pga.user.id = :id
            """)
     Page<Transaction> findByPaymentGateway (Pageable pageable,
-                                                  @Param("paymentGateway") PaymentGateway paymentGateway);
+                                            @Param("id") String id);
 
     boolean existsByCustomer(User customer);
 

@@ -20,6 +20,7 @@ import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.TransactionService;
 import com.zezame.lipayz.util.EmailUtil;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -47,16 +48,13 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
 
     @Override
     public PageRes<TransactionResDTO> getTransactions(Pageable pageable) {
-        var user = getLoginUser(userRepo);
-
+        String role = principalService.getPrincipal().getRoleCode();
+        String id = principalService.getPrincipal().getId();
         Page<Transaction> transactions = null;
 
-        switch (user.getRole().getCode()) {
-            case "CUST" -> transactions = transactionRepo.findByCustomer(pageable, user);
-            case "PGA" -> {
-                var pga = paymentGatewayAdminRepo.findByUser(user);
-                transactions = transactionRepo.findByPaymentGateway(pageable, pga.getPaymentGateway());
-            }
+        switch (role) {
+            case "CUST" -> transactions = transactionRepo.findByCustomer(pageable, id);
+            case "PGA" -> transactions = transactionRepo.findByPaymentGateway(pageable, id);
             case "SA" -> transactions = transactionRepo.findAll(pageable);
         }
 
@@ -106,7 +104,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         var history = createHistory(transactionStatus, transaction, now);
         historyRepo.save(history);
 
-        sendEmail(savedTransaction.getCustomer().getEmail(), savedTransaction.getCode());
+        sendEmailCreateTransaction(savedTransaction);
 
         return new CreateTransactionResDTO(savedTransaction.getId(), savedTransaction.getCode(),
                 Message.CREATED.getDescription());
@@ -161,8 +159,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         return transaction;
     }
 
-    private void sendEmail(String email, String transactionCode) {
-        var emailPojo = new TransactionEmailPojo(email, transactionCode);
+    private void sendEmailCreateTransaction(Transaction transaction) {
+        var emailPojo = new TransactionEmailPojo(transaction);
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EMAIL_EX_CREATE_TRANSACTION,
                 RabbitMQConfig.EMAIL_ROUTING_KEY_CREATE_TRANSACTION,
@@ -170,10 +168,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_CREATE_TRANSACTION)
-    public void receiveEmailNotificationActivation(TransactionEmailPojo emailPojo) {
-        emailUtil.sendEmail(emailPojo.getCustomerEmail(),
-                "Transaction Created (" + emailPojo.getTransactionCode() + ")",
-                "Your Transaction Has Been Processed");
+    public void receiveEmailCreateTransaction(TransactionEmailPojo emailPojo) throws MessagingException {
+        emailUtil.sendTransactionEmail(emailPojo.getTransaction());
     }
 
     @Override
@@ -203,17 +199,17 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
             }
             default -> throw new InvalidActionException("Wrong Parameter");
         }
-        transactionRepo.saveAndFlush(prepareUpdate(transaction, now));
+         var updatedTransaction = transactionRepo.saveAndFlush(prepareUpdate(transaction, now));
 
         var history = createHistory(status, transaction, now);
         historyRepo.save(history);
 
-        sendEmail(transaction.getCustomer().getEmail(), transaction.getCode(), status.getName());
+        sendEmailUpdateTransaction(updatedTransaction);
         return new CommonResDTO(Message.UPDATED.getDescription());
     }
 
-    private void sendEmail(String email, String transactionCode, String statusName) {
-        var emailPojo = new UpdateTransactionEmailPojo(email, transactionCode, statusName);
+    private void sendEmailUpdateTransaction(Transaction transaction) {
+        var emailPojo = new TransactionEmailPojo(transaction);
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EMAIL_EX_UPDATE_TRANSACTION,
                 RabbitMQConfig.EMAIL_ROUTING_KEY_UPDATE_TRANSACTION,
@@ -221,10 +217,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_UPDATE_TRANSACTION)
-    public void receiveEmailNotificationActivation(UpdateTransactionEmailPojo emailPojo) {
-        emailUtil.sendEmail(emailPojo.getCustomerEmail(),
-                "Transaction Updated (" + emailPojo.getTransactionCode() + ")",
-                "Your Transaction status is " + emailPojo.getStatusName());
+    public void receiveEmailUpdateTransaction(TransactionEmailPojo emailPojo) throws MessagingException {
+        emailUtil.sendUpdateTransactionEmail(emailPojo.getTransaction());
     }
 
     private Transaction findTransactionById(String id) {

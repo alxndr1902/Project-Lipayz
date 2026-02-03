@@ -12,6 +12,7 @@ import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.PageMapper;
+import com.zezame.lipayz.model.BaseModel;
 import com.zezame.lipayz.model.Role;
 import com.zezame.lipayz.model.User;
 import com.zezame.lipayz.pojo.ActivateCustomerEmailPojo;
@@ -33,7 +34,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -93,7 +96,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         var customer = createCustomer(request, role);
 
-        var savedCustomer = userRepo.save(prepareRegister(customer));
+        var savedCustomer = userRepo.save(prepareRegister(customer, userRepo));
         sendEmail(savedCustomer, savedCustomer.getActivationCode());
         return new CreateResDTO(savedCustomer.getId(), Message.CREATED.getDescription());
     }
@@ -157,7 +160,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         }
 
         customer.setIsActivated(true);
-        userRepo.saveAndFlush(prepareActivate(customer));
+        userRepo.saveAndFlush(prepareActivate(customer, userRepo));
         return new CommonResDTO(Message.UPDATED.getDescription());
     }
 
@@ -166,4 +169,21 @@ public class UserServiceImpl extends BaseService implements UserService {
         return userRepo.findByIdAndRoleCode(customerId, RoleCode.CUST.name())
                 .orElseThrow(() -> new NotFoundException("Customer Is Not Found"));
     }
+
+//    private User prepareRegister(User model) {
+//        var system = roleRepo.findByCode(RoleCode.SYS.name())
+//                .orElseThrow(() -> new NotFoundException("Role Is Not Found"));
+//        model.setId(UUID.randomUUID());
+//        model.setCreatedAt(LocalDateTime.now());
+//        model.setCreatedBy(system.getId());
+//        return model;
+//    }
+//
+//    private User prepareActivate(User model) {
+//        var system = roleRepo.findByCode(RoleCode.SYS.name())
+//                .orElseThrow(() -> new NotFoundException("Role Is Not Found"));
+//        model.setUpdatedAt(LocalDateTime.now());
+//        model.setUpdatedBy(system.getId());
+//        return model;
+//    }
 }

@@ -33,7 +33,6 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
-    private final TransactionRepo transactionRepo;
     private final PageMapper pageMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -135,11 +134,5 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         var paymentGatewayId = parseUUID(id);
         return paymentGatewayRepo.findById(paymentGatewayId)
                 .orElseThrow(() -> new NotFoundException("Payment Gateway Is Not Found"));
-    }
-
-    private PaymentGatewayAdmin findPaymentGatewayAdmin(String id) {
-        var paymentGatewayAdminId = parseUUID(id);
-        return paymentGatewayAdminRepo.findById(paymentGatewayAdminId)
-                .orElseThrow(() -> new NotFoundException("Payment Gateway Admin Is Not Found"));
     }
 }

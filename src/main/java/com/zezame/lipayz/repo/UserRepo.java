@@ -24,4 +24,11 @@ public interface UserRepo extends JpaRepository<User, UUID> {
         """)
     Optional<User> findCustomerToActivate(@Param(value = "email") String email,
                                           @Param(value = "activationCode") String activationCode);
+
+    @Query("""
+        SELECT u
+        FROM User u
+        WHERE u.role.code = 'SYS'
+        """)
+    Optional<User> findSystem();
 }

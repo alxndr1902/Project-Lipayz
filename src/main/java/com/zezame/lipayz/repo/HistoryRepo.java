@@ -9,20 +9,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface HistoryRepo extends JpaRepository<History, UUID> {
     @Query("""
         SELECT h
         FROM History h
-        WHERE h.transaction.customer = :customer
+        WHERE h.transaction.customer.id = :id
         """)
-    Page<History> findByCustomer(@Param("customer") User customer, Pageable pageable);
+    Page<History> findByCustomer(@Param("id") String id, Pageable pageable);
 
     @Query("""
         SELECT h
         FROM History h
-        WHERE h.transaction.paymentGateway = :paymentGateway
+        INNER JOIN PaymentGatewayAdmin pga ON pga.paymentGateway = h.transaction.paymentGateway
+        WHERE pga.user.id = :id
         """)
-    Page<History> findByPaymentGateway(PaymentGateway paymentGateway, Pageable pageable);
+    Page<History> findByPaymentGateway(@Param("id") String id, Pageable pageable);
 }
