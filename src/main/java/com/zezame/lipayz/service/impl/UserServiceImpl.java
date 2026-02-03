@@ -22,6 +22,7 @@ import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.UserService;
 import com.zezame.lipayz.util.EmailUtil;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -93,7 +94,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         var customer = createCustomer(request, role);
 
         var savedCustomer = userRepo.save(prepareRegister(customer));
-        sendEmail(savedCustomer.getEmail(), savedCustomer.getActivationCode());
+        sendEmail(savedCustomer, savedCustomer.getActivationCode());
         return new CreateResDTO(savedCustomer.getId(), Message.CREATED.getDescription());
     }
 
@@ -111,9 +112,9 @@ public class UserServiceImpl extends BaseService implements UserService {
         return customer;
     }
 
-    private void sendEmail(String email, String activationCode) {
-        var link = "http://localhost:8080/users/activate?email=" + email + "&code=" + activationCode;
-        var emailPojo = new ActivateCustomerEmailPojo(email, link);
+    private void sendEmail(User customer, String activationCode) {
+        var link = "http://localhost:8080/users/activate?email=" + customer.getEmail() + "&code=" + activationCode;
+        var emailPojo = new ActivateCustomerEmailPojo(customer, link);
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EMAIL_EX_ACTIVATION,
                 RabbitMQConfig.EMAIL_ROUTING_KEY_ACTIVATION,
@@ -121,10 +122,8 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_ACTIVATION)
-    public void receiveEmailNotifcationActivation(ActivateCustomerEmailPojo emailPojo) {
-        emailUtil.sendEmail(emailPojo.getCustomerEmail(),
-                "Activation Link",
-                "Visit This Link To Activate Your Account " + emailPojo.getLink());
+    public void receiveEmailNotifcationActivation(ActivateCustomerEmailPojo emailPojo) throws MessagingException {
+        emailUtil.sendWelcomeEmail(emailPojo.getCustomer(), emailPojo.getActivationLink());
     }
 
     @Override
@@ -150,7 +149,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
     @Override
     public CommonResDTO activateCustomer(String email, String code) {
-        var customer = userRepo.findCustomerToActivate(email, code, RoleCode.CUST.name())
+        var customer = userRepo.findCustomerToActivate(email, code)
                 .orElseThrow(() -> new NotFoundException("Customer Is Not Found"));
 
         if (customer.getIsActivated()) {
