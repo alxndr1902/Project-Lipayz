@@ -52,11 +52,9 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     }
 
     private PaymentGatewayResDTO mapToDto(PaymentGateway paymentGateway) {
-        var dto = new PaymentGatewayResDTO(
+        return new PaymentGatewayResDTO(
                 paymentGateway.getId(), paymentGateway.getCode(),
                 paymentGateway.getName(), paymentGateway.getVersion());
-
-        return dto;
     }
 
     @Override
@@ -75,6 +73,16 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
 
     @Override
     public UpdateResDTO updatePaymentGateway(String id, UpdatePGReqDTO request) {
+        var paymentGateway = validAndGetPaymentGatewayForUpdate(id, request);
+
+        paymentGateway.setCode(request.getCode());
+        paymentGateway.setName(request.getName());
+        paymentGateway.setRate(request.getRate());
+        var updatedPaymentGateway = paymentGatewayRepo.saveAndFlush(prepareUpdate(paymentGateway));
+        return new UpdateResDTO(updatedPaymentGateway.getVersion(), Message.UPDATED.getDescription());
+    }
+
+    private PaymentGateway validAndGetPaymentGatewayForUpdate(String id, UpdatePGReqDTO request) {
         var paymentGateway = findPaymentGatewayById(id);
 
         if (!paymentGateway.getVersion().equals(request.getVersion())) {
@@ -87,11 +95,7 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
             }
         }
 
-        paymentGateway.setCode(request.getCode());
-        paymentGateway.setName(request.getName());
-        paymentGateway.setRate(request.getRate());
-        var updatedPaymentGateway = paymentGatewayRepo.saveAndFlush(prepareUpdate(paymentGateway));
-        return new UpdateResDTO(updatedPaymentGateway.getVersion(), Message.UPDATED.getDescription());
+        return paymentGateway;
     }
 
     @Override
@@ -109,6 +113,17 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
             throw new DuplicateException("Email is Not Available");
         }
 
+        var user = createUser(request);
+        var savedUser = userRepo.save(prepareCreate(user, now));
+
+        var paymentGatewayAdmin = createPaymentGatewayAdmin(savedUser, paymentGatewayId);
+
+        var savedPGA = paymentGatewayAdminRepo.save(prepareCreate(paymentGatewayAdmin, now));
+
+        return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
+    }
+
+    private User createUser(CreatePGAdminReqDTO request) {
         var role = roleRepo.findByCode(RoleCode.PGA.name())
                 .orElseThrow(() -> new NotFoundException("Role Not Found"));
 
@@ -118,17 +133,18 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getName());
-        var savedUser = userRepo.save(prepareCreate(user, now));
 
+        return user;
+    }
+
+    private PaymentGatewayAdmin createPaymentGatewayAdmin(User user, String paymentGatewayId) {
         var paymentGateway = findPaymentGatewayById(paymentGatewayId);
 
         var paymentGatewayAdmin = new PaymentGatewayAdmin();
-        paymentGatewayAdmin.setUser(savedUser);
+        paymentGatewayAdmin.setUser(user);
         paymentGatewayAdmin.setPaymentGateway(paymentGateway);
 
-        var savedPGA = paymentGatewayAdminRepo.save(prepareCreate(paymentGatewayAdmin, now));
-
-        return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
+        return paymentGatewayAdmin;
     }
 
     private PaymentGateway findPaymentGatewayById(String id) {

@@ -63,6 +63,15 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
     @Override
     public UpdateResDTO updateProduct(String id, UpdateProductReqDTO request) {
+        var product = validateAndGetProductForUpdate(id, request);
+
+        product.setCode(request.getCode());
+        product.setName(request.getName());
+        var updatedProduct = productRepo.saveAndFlush(prepareUpdate(product));
+        return new UpdateResDTO(updatedProduct.getVersion(), Message.UPDATED.getDescription());
+    }
+
+    private Product validateAndGetProductForUpdate(String id, UpdateProductReqDTO request) {
         var product = findProductById(id);
 
         if (!product.getVersion().equals(request.getVersion())) {
@@ -74,10 +83,8 @@ public class ProductServiceImpl extends BaseService implements ProductService {
                 throw new DuplicateException("Code Is Not Available");
             }
         }
-        product.setCode(request.getCode());
-        product.setName(request.getName());
-        var updatedProduct = productRepo.saveAndFlush(prepareUpdate(product));
-        return new UpdateResDTO(updatedProduct.getVersion(), Message.UPDATED.getDescription());
+
+        return product;
     }
 
     @Override

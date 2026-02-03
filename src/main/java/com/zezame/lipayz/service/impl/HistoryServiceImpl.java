@@ -38,8 +38,7 @@ public class HistoryServiceImpl extends BaseService implements HistoryService {
     }
 
     private HistoryResDTO mapToDto(History history) {
-        var dto = new HistoryResDTO(history.getId(), history.getTransaction().getCode(),
+        return new HistoryResDTO(history.getId(), history.getTransaction().getCode(),
                 history.getTransactionStatus().getCode(), history.getCreatedAt());
-        return dto;
     }
 }
