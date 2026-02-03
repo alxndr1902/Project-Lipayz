@@ -49,10 +49,4 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("activate")
-    public ResponseEntity<CommonResDTO> activateUser(@RequestParam String email,
-                                                         @RequestParam String code) {
-        var response = userService.activateCustomer(email, code);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 }

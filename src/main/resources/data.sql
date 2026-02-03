@@ -54,3 +54,28 @@ SELECT
     WHERE NOT EXISTS (
     SELECT 1 FROM users WHERE email = 'sa@gmail.com'
 );
+
+INSERT INTO users (
+    id,
+    created_at,
+    created_by,
+    version,
+    email,
+    password,
+    full_name,
+    role_id,
+    is_activated
+)
+SELECT
+    uuid_generate_v4(),
+    NOW(),
+    uuid_generate_v4(),
+    0,
+    'system@gmail.com',
+    '$2a$12$.5x6fNmCh.M2RcayKfXasuuZggPSQ07sUjskPaK7xakB6mFxcMbLe',
+    'System',
+    (SELECT id FROM roles WHERE code = 'SYS'),
+    true
+    WHERE NOT EXISTS (
+    SELECT 1 FROM users WHERE email = 'system@gmail.com'
+);

@@ -22,6 +22,7 @@ import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.UserService;
 import com.zezame.lipayz.util.EmailUtil;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -75,10 +76,8 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     private UserResDTO mapToDto(User user) {
-        var dto = new UserResDTO(
+        return new UserResDTO(
                 user.getId(), user.getFullName(), user.getRole().getName(), user.getVersion());
-
-        return dto;
     }
 
     @Override
@@ -92,8 +91,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         var customer = createCustomer(request, role);
 
-        var savedCustomer = userRepo.save(prepareRegister(customer));
-        sendEmail(savedCustomer.getEmail(), savedCustomer.getActivationCode());
+        var savedCustomer = userRepo.save(prepareRegister(customer, userRepo));
+        sendEmail(savedCustomer, savedCustomer.getActivationCode());
         return new CreateResDTO(savedCustomer.getId(), Message.CREATED.getDescription());
     }
 
@@ -111,9 +110,9 @@ public class UserServiceImpl extends BaseService implements UserService {
         return customer;
     }
 
-    private void sendEmail(String email, String activationCode) {
-        var link = "http://localhost:8080/users/activate?email=" + email + "&code=" + activationCode;
-        var emailPojo = new ActivateCustomerEmailPojo(email, link);
+    private void sendEmail(User customer, String activationCode) {
+        var link = "http://localhost:8080/users/activate?email=" + customer.getEmail() + "&code=" + activationCode;
+        var emailPojo = new ActivateCustomerEmailPojo(customer, link);
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EMAIL_EX_ACTIVATION,
                 RabbitMQConfig.EMAIL_ROUTING_KEY_ACTIVATION,
@@ -121,14 +120,19 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_ACTIVATION)
-    public void receiveEmailNotifcationActivation(ActivateCustomerEmailPojo emailPojo) {
-        emailUtil.sendEmail(emailPojo.getCustomerEmail(),
-                "Activation Link",
-                "Visit This Link To Activate Your Account " + emailPojo.getLink());
+    public void receiveEmailNotifcationActivation(ActivateCustomerEmailPojo emailPojo) throws MessagingException {
+        emailUtil.sendWelcomeEmail(emailPojo.getCustomer(), emailPojo.getActivationLink());
     }
 
     @Override
     public CommonResDTO deleteUser(String id) {
+        var customer = validateAndGetCustomerForDelete(id);
+
+        userRepo.delete(customer);
+        return new CommonResDTO(Message.DELETED.getDescription());
+    }
+
+    private User validateAndGetCustomerForDelete(String id) {
         var customer = findCustomerById(id);
 
         if (transactionRepo.existsByCustomer(customer)) {
@@ -144,13 +148,12 @@ public class UserServiceImpl extends BaseService implements UserService {
             paymentGatewayAdminRepo.delete(paymentGatewayAdmin);
         }
 
-        userRepo.delete(customer);
-        return new CommonResDTO(Message.DELETED.getDescription());
+        return customer;
     }
 
     @Override
     public CommonResDTO activateCustomer(String email, String code) {
-        var customer = userRepo.findCustomerToActivate(email, code, RoleCode.CUST.name())
+        var customer = userRepo.findCustomerToActivate(email, code)
                 .orElseThrow(() -> new NotFoundException("Customer Is Not Found"));
 
         if (customer.getIsActivated()) {
@@ -158,7 +161,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         }
 
         customer.setIsActivated(true);
-        userRepo.saveAndFlush(prepareActivate(customer));
+        userRepo.saveAndFlush(prepareActivate(customer, userRepo));
         return new CommonResDTO(Message.UPDATED.getDescription());
     }
 
@@ -167,4 +170,21 @@ public class UserServiceImpl extends BaseService implements UserService {
         return userRepo.findByIdAndRoleCode(customerId, RoleCode.CUST.name())
                 .orElseThrow(() -> new NotFoundException("Customer Is Not Found"));
     }
+
+//    private User prepareRegister(User model) {
+//        var system = roleRepo.findByCode(RoleCode.SYS.name())
+//                .orElseThrow(() -> new NotFoundException("Role Is Not Found"));
+//        model.setId(UUID.randomUUID());
+//        model.setCreatedAt(LocalDateTime.now());
+//        model.setCreatedBy(system.getId());
+//        return model;
+//    }
+//
+//    private User prepareActivate(User model) {
+//        var system = roleRepo.findByCode(RoleCode.SYS.name())
+//                .orElseThrow(() -> new NotFoundException("Role Is Not Found"));
+//        model.setUpdatedAt(LocalDateTime.now());
+//        model.setUpdatedBy(system.getId());
+//        return model;
+//    }
 }

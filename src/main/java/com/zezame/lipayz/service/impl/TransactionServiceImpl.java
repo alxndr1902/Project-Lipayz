@@ -15,11 +15,11 @@ import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.*;
 import com.zezame.lipayz.pojo.TransactionEmailPojo;
-import com.zezame.lipayz.pojo.UpdateTransactionEmailPojo;
 import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.TransactionService;
 import com.zezame.lipayz.util.EmailUtil;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -38,6 +38,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     private final ProductRepo productRepo;
     private final PaymentGatewayRepo paymentGatewayRepo;
     private final UserRepo userRepo;
+    private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final TransactionStatusRepo transactionStatusRepo;
     private final HistoryRepo historyRepo;
     private final PageMapper pageMapper;
@@ -46,11 +47,16 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
 
     @Override
     public PageRes<TransactionResDTO> getTransactions(Pageable pageable) {
-        var id = parseUUID(principalService.getPrincipal().getId());
-        var user = userRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
+        String role = principalService.getPrincipal().getRoleCode();
+        String id = principalService.getPrincipal().getId();
+        Page<Transaction> transactions = null;
 
-        Page<Transaction> transactions = transactionRepo.findAll(pageable);
+        switch (role) {
+            case "CUST" -> transactions = transactionRepo.findByCustomer(pageable, id);
+            case "PGA" -> transactions = transactionRepo.findByPaymentGateway(pageable, id);
+            case "SA" -> transactions = transactionRepo.findAll(pageable);
+        }
+
         return pageMapper.toPageResponse(transactions, this::mapToDto);
     }
 
@@ -63,15 +69,13 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     private TransactionResDTO mapToDto(Transaction transaction) {
-        var dto = new TransactionResDTO(
+        return new TransactionResDTO(
                 transaction.getId(), transaction.getCode(), transaction.getProduct().getName(),
                 transaction.getVirtualAccountNumber(), transaction.getCustomer().getFullName(),
                 transaction.getPaymentGateway().getName(), transaction.getTransactionStatus().getName(),
                 transaction.getPaymentGateway().getRate(),
                 transaction.getTotalPrice(), transaction.getCreatedAt()
         );
-
-        return dto;
     }
 
     @Override
@@ -97,7 +101,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         var history = createHistory(transactionStatus, transaction, now);
         historyRepo.save(history);
 
-        sendEmail(savedTransaction.getCustomer().getEmail(), savedTransaction.getCode());
+        sendEmailCreateTransaction(savedTransaction);
 
         return new CreateTransactionResDTO(savedTransaction.getId(), savedTransaction.getCode(),
                 Message.CREATED.getDescription());
@@ -105,33 +109,28 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
 
     private User findCustomerFromToken() {
         var customerId = parseUUID(principalService.getPrincipal().getId());
-        var customer = userRepo.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
 
-        return customer;
+        return userRepo.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
     }
 
     private Product findProductFromId(String id) {
         var productId = parseUUID(id);
-        var product = productRepo.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product Is Not Found"));
 
-        return product;
+        return productRepo.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product Is Not Found"));
     }
 
     private PaymentGateway findPaymentGatewayFromId(String id) {
         var paymentGatewayId = parseUUID(id);
-        var paymentGateway = paymentGatewayRepo.findById(paymentGatewayId)
-                .orElseThrow(() -> new NotFoundException("Payment Gateway Is Not Found"));
 
-        return paymentGateway;
+        return paymentGatewayRepo.findById(paymentGatewayId)
+                .orElseThrow(() -> new NotFoundException("Payment Gateway Is Not Found"));
     }
 
     private TransactionStatus findTransactionStatusFromCode(String code) {
-        var transactionStatus = transactionStatusRepo.findByCode(code)
+        return transactionStatusRepo.findByCode(code)
                 .orElseThrow(() -> new NotFoundException("Transaction Status Is Not Found"));
-
-        return transactionStatus;
     }
 
     private Transaction createTransaction(CreateTransactionReqDTO request, Product product,
@@ -152,8 +151,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         return transaction;
     }
 
-    private void sendEmail(String email, String transactionCode) {
-        var emailPojo = new TransactionEmailPojo(email, transactionCode);
+    private void sendEmailCreateTransaction(Transaction transaction) {
+        var emailPojo = new TransactionEmailPojo(transaction);
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EMAIL_EX_CREATE_TRANSACTION,
                 RabbitMQConfig.EMAIL_ROUTING_KEY_CREATE_TRANSACTION,
@@ -161,10 +160,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_CREATE_TRANSACTION)
-    public void receiveEmailNotificationActivation(TransactionEmailPojo emailPojo) {
-        emailUtil.sendEmail(emailPojo.getCustomerEmail(),
-                "Transaction Created (" + emailPojo.getTransactionCode() + ")",
-                "Your Transaction Has Been Processed");
+    public void receiveEmailCreateTransaction(TransactionEmailPojo emailPojo) throws MessagingException {
+        emailUtil.sendTransactionEmail(emailPojo.getTransaction());
     }
 
     @Override
@@ -194,17 +191,17 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
             }
             default -> throw new InvalidActionException("Wrong Parameter");
         }
-        transactionRepo.saveAndFlush(prepareUpdate(transaction, now));
+         var updatedTransaction = transactionRepo.saveAndFlush(prepareUpdate(transaction, now));
 
         var history = createHistory(status, transaction, now);
         historyRepo.save(history);
 
-        sendEmail(transaction.getCustomer().getEmail(), transaction.getCode(), status.getName());
+        sendEmailUpdateTransaction(updatedTransaction);
         return new CommonResDTO(Message.UPDATED.getDescription());
     }
 
-    private void sendEmail(String email, String transactionCode, String statusName) {
-        var emailPojo = new UpdateTransactionEmailPojo(email, transactionCode, statusName);
+    private void sendEmailUpdateTransaction(Transaction transaction) {
+        var emailPojo = new TransactionEmailPojo(transaction);
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EMAIL_EX_UPDATE_TRANSACTION,
                 RabbitMQConfig.EMAIL_ROUTING_KEY_UPDATE_TRANSACTION,
@@ -212,10 +209,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_UPDATE_TRANSACTION)
-    public void receiveEmailNotificationActivation(UpdateTransactionEmailPojo emailPojo) {
-        emailUtil.sendEmail(emailPojo.getCustomerEmail(),
-                "Transaction Updated (" + emailPojo.getTransactionCode() + ")",
-                "Your Transaction status is " + emailPojo.getStatusName());
+    public void receiveEmailUpdateTransaction(TransactionEmailPojo emailPojo) throws MessagingException {
+        emailUtil.sendUpdateTransactionEmail(emailPojo.getTransaction());
     }
 
     private Transaction findTransactionById(String id) {

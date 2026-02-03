@@ -20,12 +20,15 @@ public interface UserRepo extends JpaRepository<User, UUID> {
         FROM User u
         WHERE
                 u.email = :email AND
-                u.activationCode = :activationCode AND
-                u.role.code = :roleCode
+                u.activationCode = :activationCode
         """)
     Optional<User> findCustomerToActivate(@Param(value = "email") String email,
-                                          @Param(value = "activationCode") String activationCode,
-                                          @Param(value = "roleCode") String roleCode);
+                                          @Param(value = "activationCode") String activationCode);
 
-    Optional<User> findByEmailAndActivationCodeEquals(String email, String activationCode);
+    @Query("""
+        SELECT u
+        FROM User u
+        WHERE u.role.code = 'SYS'
+        """)
+    Optional<User> findSystem();
 }
