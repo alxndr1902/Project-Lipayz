@@ -147,5 +147,7 @@ public class ProductTest {
         Assertions.assertEquals(1, result.getVersion());
 
         Mockito.verify(productRepo, Mockito.atLeast(1)).existsByCode(Mockito.any());
+        Mockito.verify(productRepo, Mockito.atLeast(1)).findById(Mockito.any());
+        Mockito.verify(productRepo, Mockito.atLeast(1)).saveAndFlush(Mockito.any());
     }
 }
