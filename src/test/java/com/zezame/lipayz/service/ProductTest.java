@@ -39,13 +39,9 @@ public class ProductTest {
     @Mock
     private TransactionRepo transactionRepo;
 
-    private PageMapper pageMapper = new PageMapper();
-
-    @BeforeEach
-    void setup() {
-        productService = new ProductServiceImpl(productRepo, transactionRepo, pageMapper);
-    }
-
+    @Mock
+    private PageMapper pageMapper;
+    
     @Mock
     private PrincipalService principalService;
 
