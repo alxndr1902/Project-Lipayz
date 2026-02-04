@@ -62,7 +62,6 @@ public class TokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 filterChain.doFilter(request, response);
             } catch (Exception e) {
-                e.printStackTrace();
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType("application/json");
                 response.getWriter().write("""
