@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "transactions")
 public class Transaction extends BaseModel {
-    @Column(nullable = false, unique = false, length = 20)
+    @Column(nullable = false, unique = true, length = 20)
     private String code;
 
     @ManyToOne

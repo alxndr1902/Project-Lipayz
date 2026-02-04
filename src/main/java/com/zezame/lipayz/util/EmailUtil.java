@@ -2,46 +2,39 @@ package com.zezame.lipayz.util;
 
 import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.model.User;
+import com.zezame.lipayz.service.EmailTemplateService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class EmailUtil {
     private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String fromMail;
 
-    public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom("romian37@gmail.com");
-        message.setSubject(subject);
-        message.setText(body);
+    private final EmailTemplateService emailTemplateService;
+
+    public void sendWelcomeEmail(User user, String activationLink) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("fullName", user.getFullName());
+        model.put("activationLink", activationLink);
+
+        String htmlContent = emailTemplateService.getHtmlTemplate(
+                "welcome.ftl",
+                model
+        );
+
         try {
-            mailSender.send(message);
-        } catch (MailException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void sendWelcomeEmail(User user, String activationLink) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("fullName", user.getFullName());
-        context.setVariable("activationLink", activationLink);
-        String htmlContent = templateEngine.process("Welcome.html", context);
-
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -52,66 +45,57 @@ public class EmailUtil {
 
         helper.setText(htmlContent, true);
 
-        try {
-            mailSender.send(message);
-        } catch (MailException e) {
-            System.out.println(e.getMessage());
+        mailSender.send(message);
+        } catch (MessagingException e) {
+            System.out.println("Error sending email: " + e.getMessage());
         }
     }
 
-    public void sendTransactionEmail(Transaction transaction) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("customerName", transaction.getCustomer().getFullName());
-        context.setVariable("code", transaction.getCode());
-        context.setVariable("productName", transaction.getProduct().getName());
-        context.setVariable("paymentGatewayName", transaction.getPaymentGateway().getName());
-        context.setVariable("virtualAccountNumber", transaction.getVirtualAccountNumber());
-        context.setVariable("transactionStatusName", transaction.getTransactionStatus().getName());
-        context.setVariable("adminRate", transaction.getPaymentGateway().getRate());
-        context.setVariable("totalPrice", transaction.getTotalPrice());
-        context.setVariable("createdAt", transaction.getCreatedAt());
-        String htmlContent = templateEngine.process("create-transaction.html", context);
-
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-        helper.setTo(transaction.getCustomer().getEmail());
-        helper.setSubject("Transaction Created");
-        helper.setFrom(fromMail);
-        helper.setText(htmlContent, true);
-
-        try {
-            mailSender.send(message);
-        } catch (MailException e) {
-            System.out.println(e.getMessage());
-        }
+    public void sendTransactionEmail(Transaction transaction){
+        sendEmail(transaction.getCustomer().getEmail(),
+                "Transaction Create!",
+                "create-transaction.ftl",
+                buildTransactionModel(transaction));
     }
 
-    public void sendUpdateTransactionEmail(Transaction transaction) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("customerName", transaction.getCustomer().getFullName());
-        context.setVariable("code", transaction.getCode());
-        context.setVariable("productName", transaction.getProduct().getName());
-        context.setVariable("paymentGatewayName", transaction.getPaymentGateway().getName());
-        context.setVariable("virtualAccountNumber", transaction.getVirtualAccountNumber());
-        context.setVariable("transactionStatusName", transaction.getTransactionStatus().getName());
-        context.setVariable("adminRate", transaction.getPaymentGateway().getRate());
-        context.setVariable("totalPrice", transaction.getTotalPrice());
-        context.setVariable("createdAt", transaction.getCreatedAt());
-        String htmlContent = templateEngine.process("UpdateTransaction.html", context);
+    public void sendUpdateTransactionEmail(Transaction transaction){
+        sendEmail(transaction.getCustomer().getEmail(),
+                "Transaction Updated!",
+                "update-transaction.ftl",
+                buildTransactionModel(transaction));
+    }
 
+    private Map<String, Object> buildTransactionModel(Transaction transaction) {
+        Map<String, Object> model = new HashMap<>();
+
+        model.put("customerName", transaction.getCustomer().getFullName());
+        model.put("code", transaction.getCode());
+        model.put("productName", transaction.getProduct().getName());
+        model.put("paymentGatewayName", transaction.getPaymentGateway().getName());
+        model.put("virtualAccountNumber", transaction.getVirtualAccountNumber());
+        model.put("transactionStatusName", transaction.getTransactionStatus().getName());
+        model.put("adminRate", transaction.getPaymentGateway().getRate());
+        model.put("totalPrice", transaction.getTotalPrice());
+        model.put("createdAt", transaction.getCreatedAt());
+
+        return model;
+    }
+
+    private void sendEmail(String to, String subject, String template, Map<String, Object> model) {
+        String htmlContent = emailTemplateService.getHtmlTemplate(template, model);
+        try {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        helper.setTo(transaction.getCustomer().getEmail());
-        helper.setSubject("Transaction Updated");
+        helper.setTo(to);
+        helper.setSubject(subject);
         helper.setFrom(fromMail);
         helper.setText(htmlContent, true);
 
-        try {
+
             mailSender.send(message);
-        } catch (MailException e) {
-            System.out.println(e.getMessage());
+        } catch (MessagingException e) {
+            System.out.println("Failed to send email:" + e.getMessage());
         }
     }
 }

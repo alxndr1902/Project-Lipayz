@@ -3,13 +3,10 @@ package com.zezame.lipayz.controller;
 import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
-import com.zezame.lipayz.dto.user.CreateUserReqDTO;
-import com.zezame.lipayz.dto.user.UserResDTO;
+import com.zezame.lipayz.dto.user.*;
 import com.zezame.lipayz.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,10 +20,9 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('SA')")
-    public ResponseEntity<PageRes<UserResDTO>> getUsers(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<PageRes<UserResDTO>> getUsers(@RequestParam(defaultValue = "1") Integer page,
                                                         @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        var responses = userService.getUsers(pageable);
+        var responses = userService.getUsers(page, size);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
@@ -43,10 +39,30 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('SA')")
     @DeleteMapping("{id}")
     public ResponseEntity<CommonResDTO> deleteUser(@PathVariable String id) {
         var response = userService.deleteUser(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping
+    public ResponseEntity<CommonResDTO> updateUser(@RequestBody @Valid UpdateUserReqDTO request,
+                                                   @RequestParam(required = false) String id) {
+        var response = userService.updateUser(request, id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("change-password")
+    public ResponseEntity<CommonResDTO> changePassword(@RequestParam @Valid ChangePasswordDto request) {
+        var response = userService.changePassword(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("{id}/change-password")
+    public ResponseEntity<CommonResDTO> changePassword(@RequestParam @Valid AdminChangePasswordDto request,
+                                                       @PathVariable(required = false) String id) {
+        var response = userService.adminChangePassword(request, id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -119,7 +119,7 @@
 
                             <tr style="background:#f9fafb;">
                                 <td style="padding:12px; font-size:14px; color:#555;">
-                                    Created At
+                                    Date
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:#333;">
                                     <span th:text="${createdAt}">2026-02-03 10:00</span>

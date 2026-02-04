@@ -8,10 +8,9 @@ import com.zezame.lipayz.dto.paymentgateway.CreatePGAdminReqDTO;
 import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
 import com.zezame.lipayz.dto.paymentgateway.PaymentGatewayResDTO;
 import com.zezame.lipayz.dto.paymentgateway.UpdatePGReqDTO;
-import org.springframework.data.domain.Pageable;
 
 public interface PaymentGatewayService {
-    PageRes<PaymentGatewayResDTO> getPaymentGateways(Pageable pageable);
+    PageRes<PaymentGatewayResDTO> getPaymentGateways(Integer page, Integer size);
 
     PaymentGatewayResDTO getPaymentGatewayById(String id);
 

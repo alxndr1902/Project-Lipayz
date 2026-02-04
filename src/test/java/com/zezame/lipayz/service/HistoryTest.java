@@ -38,7 +38,7 @@ public class HistoryTest {
     private PageMapper pageMapper;
 
     @Test
-    public void shouldReturnAll() {
+    public void shouldReturnAll_whenRoleIsCustomer() {
         var userId = UUID.randomUUID();
         historyService.setPrincipal(principalService);
         var auth = new AuthorizationPojo(userId.toString(), "CUST");
@@ -71,7 +71,7 @@ public class HistoryTest {
 
         Page<History> page = new PageImpl<>(histories, pageable, histories.size());
 
-        Mockito.when(historyRepo.findByCustomer(userId.toString(), pageable))
+        Mockito.when(historyRepo.findByCustomer(userId, pageable))
                 .thenReturn(page);
 
         Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
@@ -80,13 +80,13 @@ public class HistoryTest {
                         new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), histories.size())
                 ));
 
-        var result = historyService.getHistories(pageable);
+        var result = historyService.getHistories(1, 10);
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(histories.size(), result.getData().size());
         Assertions.assertEquals(id, result.getData().getFirst().getId());
 
-        Mockito.verify(historyRepo, Mockito.times(1)).findByCustomer(user.getId().toString(), pageable);
+        Mockito.verify(historyRepo, Mockito.times(1)).findByCustomer(user.getId(), pageable);
         Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
     }
 }

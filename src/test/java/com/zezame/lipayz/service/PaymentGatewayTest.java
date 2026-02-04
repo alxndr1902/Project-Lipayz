@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,12 +55,15 @@ public class PaymentGatewayTest {
     private PageMapper pageMapper;
 
     @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
     private PrincipalService principalService;
 
     @Test
     public void shouldCreatePaymentGateway_WhenDataValid() {
         paymentGatewayService.setPrincipal(principalService);
-        var auth = new AuthorizationPojo(UUID.randomUUID().toString());
+        var auth = new AuthorizationPojo(UUID.randomUUID().toString(), "SA");
         Mockito.when(principalService.getPrincipal()).thenReturn(auth);
 
         var id = UUID.randomUUID();
@@ -101,7 +105,7 @@ public class PaymentGatewayTest {
                         new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), paymentGateways.size())
                 ));
 
-        var result = paymentGatewayService.getPaymentGateways(pageable);
+        var result = paymentGatewayService.getPaymentGateways(1, 10);
 
         Assertions.assertEquals(paymentGateways.size(), result.getData().size());
         Assertions.assertEquals(id, result.getData().getFirst().getId());
@@ -130,7 +134,7 @@ public class PaymentGatewayTest {
     @Test
     public void shouldUpdateData_whenDataValid() {
         paymentGatewayService.setPrincipal(principalService);
-        var auth = new AuthorizationPojo(UUID.randomUUID().toString());
+        var auth = new AuthorizationPojo(UUID.randomUUID().toString(), "SA");
         Mockito.when(principalService.getPrincipal()).thenReturn(auth);
 
         var paymentGatewayId = UUID.randomUUID();
@@ -167,7 +171,7 @@ public class PaymentGatewayTest {
     @Test
     public void shouldCreatePGAdmin_whenDataValid() {
         paymentGatewayService.setPrincipal(principalService);
-        var auth = new AuthorizationPojo(UUID.randomUUID().toString());
+        var auth = new AuthorizationPojo(UUID.randomUUID().toString(), "SA");
         Mockito.when(principalService.getPrincipal()).thenReturn(auth);
 
         var userId = UUID.randomUUID();

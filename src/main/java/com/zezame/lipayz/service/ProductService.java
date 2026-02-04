@@ -7,10 +7,9 @@ import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.product.CreateProductReqDTO;
 import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
-import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
-    PageRes<ProductResDTO> getProducts(Pageable pageable);
+    PageRes<ProductResDTO> getProducts(Integer page, Integer size);
 
     ProductResDTO getProductById(String id);
 

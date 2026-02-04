@@ -1,16 +1,15 @@
 package com.zezame.lipayz.dto.pagination;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class PageRes<T> {
-    private final List<T> data;
-    private final PageMeta meta;
-
-    public PageRes(List<T> data, PageMeta meta) {
-        this.data = data;
-        this.meta = meta;
-    }
+    private List<T> data;
+    private PageMeta meta;
 }

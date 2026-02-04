@@ -96,14 +96,6 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
-    @ExceptionHandler(InvalidSortFieldException.class)
-    public ResponseEntity<?> handleInvalidSortFieldException(InvalidSortFieldException e) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        var errorMessage = e.getMessage();
-
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
-    }
-
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<?> handleUnauthorizedException(UnauthorizedException e) {
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
@@ -131,6 +123,22 @@ public class ErrorHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException e) {
         HttpStatus httpStatus = HttpStatus.FORBIDDEN;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(ActivationFailedException.class)
+    public ResponseEntity<?> handleActivationFailedException(ActivationFailedException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    public ResponseEntity<?> handleInvalidParameterException(InvalidParameterException e) {
+        var httpStatus = HttpStatus.BAD_REQUEST;
         var errorMessage = e.getMessage();
 
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);

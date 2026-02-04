@@ -11,8 +11,6 @@ import com.zezame.lipayz.dto.paymentgateway.UpdatePGReqDTO;
 import com.zezame.lipayz.service.PaymentGatewayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,10 +24,10 @@ public class PaymentGatewayController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SA', 'CUST')")
-    public ResponseEntity<PageRes<PaymentGatewayResDTO>> getPaymentGateways(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<PageRes<PaymentGatewayResDTO>> getPaymentGateways(@RequestParam(defaultValue = "1") Integer page,
                                                                             @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        var response = paymentGatewayService.getPaymentGateways(pageable);
+
+        var response = paymentGatewayService.getPaymentGateways(page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

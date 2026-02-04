@@ -5,40 +5,42 @@ import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.History;
 import com.zezame.lipayz.repo.HistoryRepo;
-import com.zezame.lipayz.repo.PaymentGatewayAdminRepo;
-import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.HistoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class HistoryServiceImpl extends BaseService implements HistoryService {
     private final HistoryRepo historyRepo;
-    private final UserRepo userRepo;
-    private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final PageMapper pageMapper;
 
+    @Cacheable(value = "history", key = "'page:' + #page + 'size:' + #size")
     @Override
-    public PageRes<HistoryResDTO> getHistories(Pageable pageable) {
-        String role = principalService.getPrincipal().getRoleCode();
-        String id = principalService.getPrincipal().getId();
-        Page<History> histories = null;
+    public PageRes<HistoryResDTO> getHistories(Integer page, Integer size) {
+        validatePaginationParam(page, size);
 
-        switch (role) {
-            case "CUST" -> histories = historyRepo.findByCustomer(id, pageable);
-            case "PGA" -> histories = historyRepo.findByPaymentGateway(id, pageable);
-            case "SA" -> histories = historyRepo.findAll(pageable);
-        }
+        Pageable pageable = PageRequest.of((page - 1), size);
+        var role = principalService.getPrincipal().getRoleCode();
+        var id = UUID.fromString(principalService.getPrincipal().getId());
+
+        Page<History> histories = printPaginationByRole(role,
+                () -> historyRepo.findAll(pageable),
+                () -> historyRepo.findByCustomer(id, pageable),
+                () -> historyRepo.findByPaymentGateway(id, pageable));
 
         return pageMapper.toPageResponse(histories, this::mapToDto);
     }
 
     private HistoryResDTO mapToDto(History history) {
         return new HistoryResDTO(history.getId(), history.getTransaction().getCode(),
-                history.getTransactionStatus().getCode(), history.getCreatedAt());
+                history.getTransactionStatus().getCode(), history.getCreatedAt().toString());
     }
 }

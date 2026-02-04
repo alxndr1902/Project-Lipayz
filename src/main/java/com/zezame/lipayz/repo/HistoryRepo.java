@@ -15,7 +15,7 @@ public interface HistoryRepo extends JpaRepository<History, UUID> {
         FROM History h
         WHERE h.transaction.customer.id = :id
         """)
-    Page<History> findByCustomer(@Param("id") String id, Pageable pageable);
+    Page<History> findByCustomer(@Param("id") UUID id, Pageable pageable);
 
     @Query("""
         SELECT h
@@ -23,5 +23,5 @@ public interface HistoryRepo extends JpaRepository<History, UUID> {
         INNER JOIN PaymentGatewayAdmin pga ON pga.paymentGateway = h.transaction.paymentGateway
         WHERE pga.user.id = :id
         """)
-    Page<History> findByPaymentGateway(@Param("id") String id, Pageable pageable);
+    Page<History> findByPaymentGateway(@Param("id") UUID id, Pageable pageable);
 }
