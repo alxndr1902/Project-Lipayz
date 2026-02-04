@@ -19,7 +19,6 @@ import com.zezame.lipayz.repo.TransactionRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
