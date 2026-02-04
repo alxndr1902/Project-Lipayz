@@ -24,7 +24,6 @@ public class TransactionController {
     @GetMapping
     public ResponseEntity<PageRes<TransactionResDTO>> getTransactions(@RequestParam(defaultValue = "1") Integer page,
                                                                       @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
         var response = transactionService.getTransactions(page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
