@@ -7,11 +7,8 @@ import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.*;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.repo.HistoryRepo;
-import com.zezame.lipayz.repo.PaymentGatewayAdminRepo;
-import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.impl.HistoryServiceImpl;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,23 +32,10 @@ public class HistoryTest {
     private HistoryRepo historyRepo;
 
     @Mock
-    private UserRepo userRepo;
-
-    @Mock
-    private PaymentGatewayAdminRepo paymentGatewayAdminRepo;
-
-    @Mock
     private PrincipalService principalService;
 
     @Mock
     private PageMapper pageMapper;
-
-//    private final PageMapper pageMapper = new PageMapper();
-
-//    @BeforeEach
-//    void setup() {
-//        historyService = new HistoryServiceImpl(historyRepo, userRepo, paymentGatewayAdminRepo, pageMapper);
-//    }
 
     @Test
     public void shouldReturnAll() {
@@ -93,8 +76,8 @@ public class HistoryTest {
 
         Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
                 .thenReturn(new PageRes<>(
-                        List.of(new HistoryResDTO(id, null, null, null)),
-                        new PageMeta(0, 10, histories.size())
+                        List.of(new HistoryResDTO(savedHistory.getId(), null, null, null)),
+                        new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), histories.size())
                 ));
 
         var result = historyService.getHistories(pageable);
@@ -104,5 +87,6 @@ public class HistoryTest {
         Assertions.assertEquals(id, result.getData().getFirst().getId());
 
         Mockito.verify(historyRepo, Mockito.times(1)).findByCustomer(user.getId().toString(), pageable);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
     }
 }

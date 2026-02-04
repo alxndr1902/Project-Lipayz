@@ -6,7 +6,10 @@ import com.zezame.lipayz.dto.CommonResDTO;
 import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.UpdateResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
-import com.zezame.lipayz.dto.paymentgateway.*;
+import com.zezame.lipayz.dto.paymentgateway.CreatePGAdminReqDTO;
+import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
+import com.zezame.lipayz.dto.paymentgateway.PaymentGatewayResDTO;
+import com.zezame.lipayz.dto.paymentgateway.UpdatePGReqDTO;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.exceptiohandler.exception.OptimisticLockException;
@@ -52,11 +55,9 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     }
 
     private PaymentGatewayResDTO mapToDto(PaymentGateway paymentGateway) {
-        var dto = new PaymentGatewayResDTO(
+        return new PaymentGatewayResDTO(
                 paymentGateway.getId(), paymentGateway.getCode(),
                 paymentGateway.getName(), paymentGateway.getVersion());
-
-        return dto;
     }
 
     @Override
@@ -75,17 +76,29 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
 
     @Override
     public UpdateResDTO updatePaymentGateway(String id, UpdatePGReqDTO request) {
-        var paymentGateway = findPaymentGatewayById(id);
-
-        if (!paymentGateway.getVersion().equals(request.getVersion())) {
-            throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
-        }
+        var paymentGateway = validAndGetPaymentGatewayForUpdate(id, request);
 
         paymentGateway.setCode(request.getCode());
         paymentGateway.setName(request.getName());
         paymentGateway.setRate(request.getRate());
         var updatedPaymentGateway = paymentGatewayRepo.saveAndFlush(prepareUpdate(paymentGateway));
         return new UpdateResDTO(updatedPaymentGateway.getVersion(), Message.UPDATED.getDescription());
+    }
+
+    private PaymentGateway validAndGetPaymentGatewayForUpdate(String id, UpdatePGReqDTO request) {
+        var paymentGateway = findPaymentGatewayById(id);
+
+        if (!paymentGateway.getVersion().equals(request.getVersion())) {
+            throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
+        }
+
+        if (!paymentGateway.getCode().equals(request.getCode())) {
+            if (paymentGatewayRepo.existsByCode(request.getCode())) {
+                throw new OptimisticLockException("Error Updating Data, Please Refresh The Page");
+            }
+        }
+
+        return paymentGateway;
     }
 
     @Override
@@ -103,6 +116,17 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
             throw new DuplicateException("Email is Not Available");
         }
 
+        var user = createUser(request);
+        var savedUser = userRepo.save(prepareCreate(user, now));
+
+        var paymentGatewayAdmin = createPaymentGatewayAdmin(savedUser, paymentGatewayId);
+
+        var savedPGA = paymentGatewayAdminRepo.save(prepareCreate(paymentGatewayAdmin, now));
+
+        return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
+    }
+
+    private User createUser(CreatePGAdminReqDTO request) {
         var role = roleRepo.findByCode(RoleCode.PGA.name())
                 .orElseThrow(() -> new NotFoundException("Role Not Found"));
 
@@ -112,25 +136,18 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getName());
-        var savedUser = userRepo.save(prepareCreate(user, now));
 
+        return user;
+    }
+
+    private PaymentGatewayAdmin createPaymentGatewayAdmin(User user, String paymentGatewayId) {
         var paymentGateway = findPaymentGatewayById(paymentGatewayId);
 
         var paymentGatewayAdmin = new PaymentGatewayAdmin();
-        paymentGatewayAdmin.setUser(savedUser);
+        paymentGatewayAdmin.setUser(user);
         paymentGatewayAdmin.setPaymentGateway(paymentGateway);
 
-        var savedPGA = paymentGatewayAdminRepo.save(prepareCreate(paymentGatewayAdmin, now));
-
-        return new CreateResDTO(savedPGA.getId(), Message.CREATED.getDescription());
-    }
-
-    private PaymentGatewayAdminResDTO mapToDto(PaymentGatewayAdmin admin) {
-        var dto = new PaymentGatewayAdminResDTO(
-                admin.getId(), admin.getUser().getFullName(), admin.getUser().getRole().getName(),
-                admin.getPaymentGateway().getName(), admin.getVersion());
-
-        return dto;
+        return paymentGatewayAdmin;
     }
 
     private PaymentGateway findPaymentGatewayById(String id) {

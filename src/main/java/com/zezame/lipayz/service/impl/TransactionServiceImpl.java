@@ -69,15 +69,13 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     private TransactionResDTO mapToDto(Transaction transaction) {
-        var dto = new TransactionResDTO(
+        return new TransactionResDTO(
                 transaction.getId(), transaction.getCode(), transaction.getProduct().getName(),
                 transaction.getVirtualAccountNumber(), transaction.getCustomer().getFullName(),
                 transaction.getPaymentGateway().getName(), transaction.getTransactionStatus().getName(),
                 transaction.getPaymentGateway().getRate(),
                 transaction.getTotalPrice(), transaction.getCreatedAt()
         );
-
-        return dto;
     }
 
     @Override
@@ -111,33 +109,28 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
 
     private User findCustomerFromToken() {
         var customerId = parseUUID(principalService.getPrincipal().getId());
-        var customer = userRepo.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
 
-        return customer;
+        return userRepo.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("User Is Not Found"));
     }
 
     private Product findProductFromId(String id) {
         var productId = parseUUID(id);
-        var product = productRepo.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product Is Not Found"));
 
-        return product;
+        return productRepo.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product Is Not Found"));
     }
 
     private PaymentGateway findPaymentGatewayFromId(String id) {
         var paymentGatewayId = parseUUID(id);
-        var paymentGateway = paymentGatewayRepo.findById(paymentGatewayId)
-                .orElseThrow(() -> new NotFoundException("Payment Gateway Is Not Found"));
 
-        return paymentGateway;
+        return paymentGatewayRepo.findById(paymentGatewayId)
+                .orElseThrow(() -> new NotFoundException("Payment Gateway Is Not Found"));
     }
 
     private TransactionStatus findTransactionStatusFromCode(String code) {
-        var transactionStatus = transactionStatusRepo.findByCode(code)
+        return transactionStatusRepo.findByCode(code)
                 .orElseThrow(() -> new NotFoundException("Transaction Status Is Not Found"));
-
-        return transactionStatus;
     }
 
     private Transaction createTransaction(CreateTransactionReqDTO request, Product product,

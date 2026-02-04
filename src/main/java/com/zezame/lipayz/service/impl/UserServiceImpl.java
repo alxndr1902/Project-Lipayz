@@ -76,10 +76,8 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     private UserResDTO mapToDto(User user) {
-        var dto = new UserResDTO(
+        return new UserResDTO(
                 user.getId(), user.getFullName(), user.getRole().getName(), user.getVersion());
-
-        return dto;
     }
 
     @Override
@@ -128,6 +126,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 
     @Override
     public CommonResDTO deleteUser(String id) {
+        var customer = validateAndGetCustomerForDelete(id);
+
+        userRepo.delete(customer);
+        return new CommonResDTO(Message.DELETED.getDescription());
+    }
+
+    private User validateAndGetCustomerForDelete(String id) {
         var customer = findCustomerById(id);
 
         if (transactionRepo.existsByCustomer(customer)) {
@@ -143,8 +148,7 @@ public class UserServiceImpl extends BaseService implements UserService {
             paymentGatewayAdminRepo.delete(paymentGatewayAdmin);
         }
 
-        userRepo.delete(customer);
-        return new CommonResDTO(Message.DELETED.getDescription());
+        return customer;
     }
 
     @Override
