@@ -54,8 +54,7 @@ public class UserController {
     }
 
     @PutMapping("change-password")
-    public ResponseEntity<CommonResDTO> changePassword(@RequestParam @Valid ChangePasswordDto request,
-                                                       @RequestParam(required = false) String id) {
+    public ResponseEntity<CommonResDTO> changePassword(@RequestParam @Valid ChangePasswordDto request) {
         var response = userService.changePassword(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
