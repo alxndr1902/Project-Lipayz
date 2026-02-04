@@ -11,7 +11,6 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailUtil {
     private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String fromMail;
