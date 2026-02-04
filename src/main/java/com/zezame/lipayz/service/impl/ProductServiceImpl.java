@@ -43,13 +43,11 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Override
     public ProductResDTO getProductById(String id) {
         var product = findProductById(id);
-        var dto = mapToDto(product);
-        return dto;
+        return mapToDto(product);
     }
 
     private ProductResDTO mapToDto(Product product) {
-        var dto = new ProductResDTO(product.getId(), product.getName(), product.getVersion());
-        return dto;
+        return new ProductResDTO(product.getId(), product.getName(), product.getVersion());
     }
 
     @Override
