@@ -153,7 +153,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @Override
-    public CommonResDTO activateCustomer(String email, String code) throws ActivationFailedException {
+    public void activateCustomer(String email, String code) throws ActivationFailedException {
         var customer = userRepo.findCustomerToActivate(email, code)
                 .orElseThrow(() -> new ActivationFailedException("Customer Is Not Found"));
 
@@ -163,7 +163,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         customer.setIsActivated(true);
         userRepo.saveAndFlush(prepareActivate(customer, userRepo));
-        return new CommonResDTO(Message.UPDATED.getDescription());
     }
 
     @Override

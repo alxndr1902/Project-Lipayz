@@ -18,7 +18,7 @@ public interface UserService extends UserDetailsService {
 
     CommonResDTO deleteUser(String id);
 
-    CommonResDTO activateCustomer(String email, String code);
+    void activateCustomer(String email, String code);
 
     CommonResDTO changePassword(ChangePasswordDto request);
 
