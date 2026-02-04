@@ -31,7 +31,7 @@ public class HistoryServiceImpl extends BaseService implements HistoryService {
         var role = principalService.getPrincipal().getRoleCode();
         var id = UUID.fromString(principalService.getPrincipal().getId());
 
-        Page<History> histories = resolveByRole(role,
+        Page<History> histories = printPaginationByRole(role,
                 () -> historyRepo.findAll(pageable),
                 () -> historyRepo.findByCustomer(id, pageable),
                 () -> historyRepo.findByPaymentGateway(id, pageable));

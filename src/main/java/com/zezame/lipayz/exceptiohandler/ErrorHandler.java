@@ -96,14 +96,6 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
 
-    @ExceptionHandler(InvalidSortFieldException.class)
-    public ResponseEntity<?> handleInvalidSortFieldException(InvalidSortFieldException e) {
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        var errorMessage = e.getMessage();
-
-        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
-    }
-
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<?> handleUnauthorizedException(UnauthorizedException e) {
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;

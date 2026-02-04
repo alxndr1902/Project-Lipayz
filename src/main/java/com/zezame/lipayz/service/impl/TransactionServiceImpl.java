@@ -52,7 +52,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         String role = principalService.getPrincipal().getRoleCode();
         String id = principalService.getPrincipal().getId();
 
-        Page<Transaction> transactions = resolveByRole(role,
+        Page<Transaction> transactions = printPaginationByRole(role,
                 () -> transactionRepo.findAll(pageable),
                 () -> transactionRepo.findByCustomer(pageable, id),
                 () -> transactionRepo.findByPaymentGateway(pageable, id));

@@ -92,7 +92,7 @@ public class BaseService {
         return result.toString();
     }
 
-    protected <T> Page<T> resolveByRole(
+    protected <T> Page<T> printPaginationByRole(
             String role,
             Supplier<Page<T>> saSupplier,
             Supplier<Page<T>> custSupplier,
@@ -102,7 +102,7 @@ public class BaseService {
             case "SA"   -> saSupplier.get();
             case "CUST" -> custSupplier.get();
             case "PGA"  -> pgaSupplier.get();
-            default     -> throw new UnauthorizedException("Invalid Role");
+            default -> throw new UnauthorizedException("Invalid Role");
         };
     }
 

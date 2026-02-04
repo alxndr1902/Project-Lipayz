@@ -180,7 +180,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 
     @Override
     public CommonResDTO adminChangePassword(AdminChangePasswordDto request, String id) {
-        validateUserLoginIsSA();
+        if (userLoginIsNotSA()) {
+            throw new ForbiddenException("You are Not Allowed to Perform This Operation");
+        }
 
         var user = findUserById(id);
         user.setPassword(request.getNewPassword());
@@ -192,8 +194,10 @@ public class UserServiceImpl extends BaseService implements UserService {
     public CommonResDTO updateUser(UpdateUserReqDTO request, String id) {
         User user;
 
-        if (id != null) {
-            validateUserLoginIsSA();
+        if (id != null && !id.isBlank()) {
+            if (userLoginIsNotSA()) {
+                throw new ForbiddenException("You are Not Allowed to Perform This Operation");
+            }
             user = findUserById(id);
         } else {
             user = findUserById(principalService.getPrincipal().getId());
@@ -212,11 +216,10 @@ public class UserServiceImpl extends BaseService implements UserService {
         return new CommonResDTO(Message.UPDATED.getDescription());
     }
 
-    private void validateUserLoginIsSA() {
-        var userLogin = findUserById(principalService.getPrincipal().getId());
-        if (!userLogin.getRole().getCode().equals(RoleCode.SA.name())) {
-            throw new ForbiddenException("You are Not Allowed to Perform This Operation");
-        }
+    private boolean userLoginIsNotSA() {
+        var role = principalService.getPrincipal().getRoleCode();
+
+        return !role.equals(RoleCode.SA.name());
     }
 
     private User findUserById(String id) {
