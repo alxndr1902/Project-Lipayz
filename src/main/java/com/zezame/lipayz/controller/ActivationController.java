@@ -18,7 +18,7 @@ public class ActivationController {
     public String activateUser(@RequestParam String email,
                                @RequestParam String code) {
         try {
-            var response = userService.activateCustomer(email, code);
+            userService.activateCustomer(email, code);
             return "success";
         } catch (ActivationFailedException e) {
             return "fail-activation";

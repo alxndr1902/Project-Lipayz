@@ -7,7 +7,6 @@ import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.Product;
-import com.zezame.lipayz.model.Role;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.repo.ProductRepo;
 import com.zezame.lipayz.service.impl.ProductServiceImpl;

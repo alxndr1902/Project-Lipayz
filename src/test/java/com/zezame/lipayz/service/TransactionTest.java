@@ -5,7 +5,6 @@ import com.zezame.lipayz.constant.TransactionStatusCode;
 import com.zezame.lipayz.dto.pagination.PageMeta;
 import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.transaction.CreateTransactionReqDTO;
-import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.*;
@@ -24,7 +23,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
