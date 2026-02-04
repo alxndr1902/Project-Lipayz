@@ -5,7 +5,6 @@ import com.zezame.lipayz.dto.CreateResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.user.*;
 import com.zezame.lipayz.model.User;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {

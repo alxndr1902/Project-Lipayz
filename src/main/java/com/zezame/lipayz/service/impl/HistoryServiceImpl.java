@@ -2,14 +2,9 @@ package com.zezame.lipayz.service.impl;
 
 import com.zezame.lipayz.dto.history.HistoryResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
-import com.zezame.lipayz.exceptiohandler.exception.InvalidNominalException;
-import com.zezame.lipayz.exceptiohandler.exception.InvalidParameterException;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.History;
-import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.repo.HistoryRepo;
-import com.zezame.lipayz.repo.PaymentGatewayAdminRepo;
-import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.HistoryService;
 import lombok.RequiredArgsConstructor;

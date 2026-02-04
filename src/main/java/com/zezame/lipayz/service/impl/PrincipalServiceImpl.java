@@ -2,7 +2,6 @@ package com.zezame.lipayz.service.impl;
 
 import com.zezame.lipayz.exceptiohandler.exception.InvalidUUIDException;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
-import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.PrincipalService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
