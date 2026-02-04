@@ -41,7 +41,6 @@ public class ProductServiceImpl extends BaseService implements ProductService {
         return pageMapper.toPageResponse(products, this::mapToDto);
     }
 
-    @Cacheable()
     @Override
     public ProductResDTO getProductById(String id) {
         var product = findProductById(id);
