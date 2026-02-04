@@ -19,7 +19,6 @@ import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.UserService;
 import com.zezame.lipayz.util.EmailUtil;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -121,7 +120,7 @@ public class UserServiceImpl extends BaseService implements UserService {
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_ACTIVATION)
-    public void receiveEmailNotifcationActivation(ActivateCustomerEmailPojo emailPojo) throws MessagingException {
+    public void receiveEmailNotifcationActivation(ActivateCustomerEmailPojo emailPojo){
         emailUtil.sendWelcomeEmail(emailPojo.getCustomer(), emailPojo.getActivationLink());
     }
 

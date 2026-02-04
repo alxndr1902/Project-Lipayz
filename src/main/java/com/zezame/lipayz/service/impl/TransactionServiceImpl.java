@@ -16,7 +16,6 @@ import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.TransactionService;
 import com.zezame.lipayz.util.EmailUtil;
-import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -153,7 +152,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_CREATE_TRANSACTION)
-    public void receiveEmailCreateTransaction(TransactionEmailPojo emailPojo) throws MessagingException {
+    public void receiveEmailCreateTransaction(TransactionEmailPojo emailPojo){
         emailUtil.sendTransactionEmail(emailPojo.getTransaction());
     }
 
@@ -212,7 +211,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     }
 
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE_UPDATE_TRANSACTION)
-    public void receiveEmailUpdateTransaction(TransactionEmailPojo emailPojo) throws MessagingException {
+    public void receiveEmailUpdateTransaction(TransactionEmailPojo emailPojo){
         emailUtil.sendUpdateTransactionEmail(emailPojo.getTransaction());
     }
 
