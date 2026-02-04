@@ -7,9 +7,12 @@ import com.zezame.lipayz.dto.user.UserResDTO;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.Role;
 import com.zezame.lipayz.model.User;
+import com.zezame.lipayz.repo.PaymentGatewayAdminRepo;
 import com.zezame.lipayz.repo.RoleRepo;
+import com.zezame.lipayz.repo.TransactionRepo;
 import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.impl.UserServiceImpl;
+import com.zezame.lipayz.util.EmailUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,10 +20,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +44,21 @@ public class UserTest {
 
     @Mock
     private PageMapper pageMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+
+    @Mock
+    private EmailUtil emailUtil;
+
+    @Mock
+    private TransactionRepo transactionRepo;
+
+    @Mock
+    private PaymentGatewayAdminRepo paymentGatewayAdminRepo;
 
     @Test
     public void shouldCreateCustomer_WhenDataValid() {
@@ -100,7 +120,7 @@ public class UserTest {
     }
 
     @Test
-    public void shoudlReturnAll() {
+    public void shouldReturnAll() {
         Pageable pageable = PageRequest.of(0, 10);
 
         var id = UUID.randomUUID();
@@ -125,7 +145,7 @@ public class UserTest {
                         new PageMeta(0, 10, users.size())
                 ));
 
-        var result = userService.getUsers(pageable);
+        var result = userService.getUsers(1, 10);
 
         Assertions.assertEquals(users.size(), result.getData().size());
         Assertions.assertEquals(id, result.getData().getFirst().getId());

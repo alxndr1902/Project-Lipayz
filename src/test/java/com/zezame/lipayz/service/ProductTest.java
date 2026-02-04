@@ -7,6 +7,7 @@ import com.zezame.lipayz.dto.product.ProductResDTO;
 import com.zezame.lipayz.dto.product.UpdateProductReqDTO;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.Product;
+import com.zezame.lipayz.model.Role;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.repo.ProductRepo;
 import com.zezame.lipayz.service.impl.ProductServiceImpl;
@@ -43,7 +44,7 @@ public class ProductTest {
     @Test
     public void shouldCreateProduct_WhenDataValid() {
         productService.setPrincipal(principalService);
-        var auth = new AuthorizationPojo(UUID.randomUUID().toString());
+        var auth = new AuthorizationPojo(UUID.randomUUID().toString(), "SA");
         Mockito.when(principalService.getPrincipal()).thenReturn(auth);
 
         var id = UUID.randomUUID();
@@ -102,7 +103,7 @@ public class ProductTest {
                         new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), products.size())
                 ));
 
-        var result = productService.getProducts(pageable);
+        var result = productService.getProducts(1, 10);
 
         Assertions.assertEquals(products.size(), result.getData().size());
         Assertions.assertEquals(id, result.getData().getFirst().getId());
@@ -114,7 +115,7 @@ public class ProductTest {
     @Test
     public void shouldUpdateProduct_whenDataValid() {
         productService.setPrincipal(principalService);
-        var auth = new AuthorizationPojo(UUID.randomUUID().toString());
+        var auth = new AuthorizationPojo(UUID.randomUUID().toString(), "SA");
         Mockito.when(principalService.getPrincipal()).thenReturn(auth);
 
         var productId = UUID.randomUUID();

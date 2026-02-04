@@ -1,14 +1,18 @@
 package com.zezame.lipayz.service;
 
+import com.zezame.lipayz.exceptiohandler.exception.InvalidParameterException;
 import com.zezame.lipayz.exceptiohandler.exception.InvalidUUIDException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
+import com.zezame.lipayz.exceptiohandler.exception.UnauthorizedException;
 import com.zezame.lipayz.model.BaseModel;
 import com.zezame.lipayz.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class BaseService {
     protected PrincipalService principalService;
@@ -56,6 +60,16 @@ public class BaseService {
         return model;
     }
 
+    protected void validatePaginationParam(Integer page, Integer size) {
+        if (page == null || page < 1) {
+            throw new InvalidParameterException("Invalid Page Number");
+        }
+
+        if (size == null || size < 1) {
+            throw new InvalidParameterException("Invalid Page Size");
+        }
+    }
+
     protected UUID parseUUID(String request) {
         if (request == null || request.isBlank()) {
             throw new InvalidUUIDException("Id Is Required");
@@ -76,6 +90,20 @@ public class BaseService {
             result.append(chars.charAt(index));
         }
         return result.toString();
+    }
+
+    protected <T> Page<T> resolveByRole(
+            String role,
+            Supplier<Page<T>> saSupplier,
+            Supplier<Page<T>> custSupplier,
+            Supplier<Page<T>> pgaSupplier
+    ) {
+        return switch (role) {
+            case "SA"   -> saSupplier.get();
+            case "CUST" -> custSupplier.get();
+            case "PGA"  -> pgaSupplier.get();
+            default     -> throw new UnauthorizedException("Invalid Role");
+        };
     }
 
     @Autowired

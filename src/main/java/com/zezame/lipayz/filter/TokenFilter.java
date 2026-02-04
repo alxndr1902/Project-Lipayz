@@ -50,7 +50,7 @@ public class TokenFilter extends OncePerRequestFilter {
             try {
                 var claims = jwtService.validateToken(token);
 
-                var data = new AuthorizationPojo(claims.get("id").toString());
+                var data = new AuthorizationPojo(claims.get("id").toString(), claims.get("role").toString());
 
                 var role =  claims.get("role", String.class);
 
@@ -62,6 +62,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 filterChain.doFilter(request, response);
             } catch (Exception e) {
+                e.printStackTrace();
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType("application/json");
                 response.getWriter().write("""

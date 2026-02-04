@@ -8,8 +8,4 @@ import lombok.Getter;
 public class AuthorizationPojo {
     private String id;
     private String roleCode;
-
-    public AuthorizationPojo(String id) {
-        this.id = id;
-    }
 }

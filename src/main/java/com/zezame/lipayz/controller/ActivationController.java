@@ -1,5 +1,6 @@
 package com.zezame.lipayz.controller;
 
+import com.zezame.lipayz.exceptiohandler.exception.ActivationFailedException;
 import com.zezame.lipayz.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -16,11 +17,11 @@ public class ActivationController {
     @GetMapping("activate")
     public String activateUser(@RequestParam String email,
                                @RequestParam String code) {
-        var response = userService.activateCustomer(email, code);
         try {
+            var response = userService.activateCustomer(email, code);
             return "success";
-        } catch (Exception e) {
-            return "fail";
+        } catch (ActivationFailedException e) {
+            return "fail-activation";
         }
     }
 }

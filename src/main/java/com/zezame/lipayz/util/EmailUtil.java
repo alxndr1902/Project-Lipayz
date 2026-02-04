@@ -2,17 +2,25 @@ package com.zezame.lipayz.util;
 
 import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.model.User;
+import com.zezame.lipayz.service.EmailTemplateService;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -23,24 +31,17 @@ public class EmailUtil {
     @Value("${spring.mail.username}")
     private String fromMail;
 
-    public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom("romian37@gmail.com");
-        message.setSubject(subject);
-        message.setText(body);
-        try {
-            mailSender.send(message);
-        } catch (MailException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+    private final EmailTemplateService emailTemplateService;
 
     public void sendWelcomeEmail(User user, String activationLink) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("fullName", user.getFullName());
-        context.setVariable("activationLink", activationLink);
-        String htmlContent = templateEngine.process("Welcome.html", context);
+        Map<String, Object> model = new HashMap<>();
+        model.put("fullName", user.getFullName());
+        model.put("activationLink", activationLink);
+
+        String htmlContent = emailTemplateService.getHtmlTemplate(
+                "welcome.ftl",
+                model
+        );
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -60,17 +61,21 @@ public class EmailUtil {
     }
 
     public void sendTransactionEmail(Transaction transaction) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("customerName", transaction.getCustomer().getFullName());
-        context.setVariable("code", transaction.getCode());
-        context.setVariable("productName", transaction.getProduct().getName());
-        context.setVariable("paymentGatewayName", transaction.getPaymentGateway().getName());
-        context.setVariable("virtualAccountNumber", transaction.getVirtualAccountNumber());
-        context.setVariable("transactionStatusName", transaction.getTransactionStatus().getName());
-        context.setVariable("adminRate", transaction.getPaymentGateway().getRate());
-        context.setVariable("totalPrice", transaction.getTotalPrice());
-        context.setVariable("createdAt", transaction.getCreatedAt());
-        String htmlContent = templateEngine.process("create-transaction.html", context);
+        Map<String, Object> model = new HashMap<>();
+        model.put("customerName", transaction.getCustomer().getFullName());
+        model.put("code", transaction.getCode());
+        model.put("productName", transaction.getProduct().getName());
+        model.put("paymentGatewayName", transaction.getPaymentGateway().getName());
+        model.put("virtualAccountNumber", transaction.getVirtualAccountNumber());
+        model.put("transactionStatusName", transaction.getTransactionStatus().getName());
+        model.put("adminRate", transaction.getPaymentGateway().getRate());
+        model.put("totalPrice", transaction.getTotalPrice());
+        model.put("createdAt", transaction.getCreatedAt());
+
+        String htmlContent = emailTemplateService.getHtmlTemplate(
+                "create-transaction.ftl",
+                model
+        );
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -88,17 +93,22 @@ public class EmailUtil {
     }
 
     public void sendUpdateTransactionEmail(Transaction transaction) throws MessagingException {
-        Context context = new Context();
-        context.setVariable("customerName", transaction.getCustomer().getFullName());
-        context.setVariable("code", transaction.getCode());
-        context.setVariable("productName", transaction.getProduct().getName());
-        context.setVariable("paymentGatewayName", transaction.getPaymentGateway().getName());
-        context.setVariable("virtualAccountNumber", transaction.getVirtualAccountNumber());
-        context.setVariable("transactionStatusName", transaction.getTransactionStatus().getName());
-        context.setVariable("adminRate", transaction.getPaymentGateway().getRate());
-        context.setVariable("totalPrice", transaction.getTotalPrice());
-        context.setVariable("createdAt", transaction.getCreatedAt());
-        String htmlContent = templateEngine.process("UpdateTransaction.html", context);
+        Map<String, Object> model = new HashMap<>();
+
+        model.put("customerName", transaction.getCustomer().getFullName());
+        model.put("code", transaction.getCode());
+        model.put("productName", transaction.getProduct().getName());
+        model.put("paymentGatewayName", transaction.getPaymentGateway().getName());
+        model.put("virtualAccountNumber", transaction.getVirtualAccountNumber());
+        model.put("transactionStatusName", transaction.getTransactionStatus().getName());
+        model.put("adminRate", transaction.getPaymentGateway().getRate());
+        model.put("totalPrice", transaction.getTotalPrice());
+        model.put("createdAt", transaction.getCreatedAt());
+
+        String htmlContent = emailTemplateService.getHtmlTemplate(
+                "update-transaction.ftl",
+                model
+        );
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -114,4 +124,6 @@ public class EmailUtil {
             System.out.println(e.getMessage());
         }
     }
+
+
 }

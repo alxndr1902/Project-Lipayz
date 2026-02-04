@@ -24,10 +24,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<PageRes<ProductResDTO>> getProducts(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<PageRes<ProductResDTO>> getProducts(@RequestParam(defaultValue = "1") Integer page,
                                                               @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        var response = productService.getProducts(pageable);
+        var response = productService.getProducts(page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

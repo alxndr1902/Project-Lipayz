@@ -8,10 +8,7 @@ import com.zezame.lipayz.dto.pagination.PageRes;
 import com.zezame.lipayz.dto.transaction.CreateTransactionReqDTO;
 import com.zezame.lipayz.dto.transaction.CreateTransactionResDTO;
 import com.zezame.lipayz.dto.transaction.TransactionResDTO;
-import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
-import com.zezame.lipayz.exceptiohandler.exception.InvalidActionException;
-import com.zezame.lipayz.exceptiohandler.exception.InvalidNominalException;
-import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
+import com.zezame.lipayz.exceptiohandler.exception.*;
 import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.*;
 import com.zezame.lipayz.pojo.TransactionEmailPojo;
@@ -24,7 +21,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -38,34 +37,27 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
     private final ProductRepo productRepo;
     private final PaymentGatewayRepo paymentGatewayRepo;
     private final UserRepo userRepo;
-    private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final TransactionStatusRepo transactionStatusRepo;
+    private final PaymentGatewayAdminRepo paymentGatewayAdminRepo;
     private final HistoryRepo historyRepo;
     private final PageMapper pageMapper;
     private final RabbitTemplate rabbitTemplate;
     private final EmailUtil emailUtil;
 
     @Override
-    public PageRes<TransactionResDTO> getTransactions(Pageable pageable) {
+    public PageRes<TransactionResDTO> getTransactions(Integer page, Integer size) {
+        validatePaginationParam(page, size);
+
+        Pageable pageable = PageRequest.of((page - 1), size);
         String role = principalService.getPrincipal().getRoleCode();
         String id = principalService.getPrincipal().getId();
-        Page<Transaction> transactions = null;
 
-        switch (role) {
-            case "CUST" -> transactions = transactionRepo.findByCustomer(pageable, id);
-            case "PGA" -> transactions = transactionRepo.findByPaymentGateway(pageable, id);
-            case "SA" -> transactions = transactionRepo.findAll(pageable);
-        }
+        Page<Transaction> transactions = resolveByRole(role,
+                () -> transactionRepo.findAll(pageable),
+                () -> transactionRepo.findByCustomer(pageable, id),
+                () -> transactionRepo.findByPaymentGateway(pageable, id));
 
         return pageMapper.toPageResponse(transactions, this::mapToDto);
-    }
-
-    @Override
-    public TransactionResDTO getTransactionById(String id) {
-        var transactionId = parseUUID(id);
-        var transaction = transactionRepo.findById(transactionId)
-                .orElseThrow(() -> new NotFoundException("Transaction Is Not Found"));
-        return mapToDto(transaction);
     }
 
     private TransactionResDTO mapToDto(Transaction transaction) {
@@ -78,6 +70,7 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         );
     }
 
+    @CacheEvict(value = "history", allEntries = true)
     @Override
     @Transactional(rollbackOn = Exception.class)
     public CreateTransactionResDTO createTransaction(CreateTransactionReqDTO request) {
@@ -164,10 +157,20 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         emailUtil.sendTransactionEmail(emailPojo.getTransaction());
     }
 
+    @CacheEvict(value = "history", allEntries = true)
     @Override
     @Transactional(rollbackOn = Exception.class)
     public CommonResDTO processTransaction(String id, String action) {
         var transaction = findTransactionById(id);
+
+        var paymentGateway = transaction.getPaymentGateway();
+
+        var userId = principalService.getUserId();
+        var paymentGatewayAdmin = paymentGatewayAdminRepo.findByUser_Id(userId);
+
+        if (!paymentGatewayAdmin.getPaymentGateway().getId().equals(paymentGateway.getId())) {
+            throw new ForbiddenException("You are Not Allowed To Perform This Action");
+        }
 
         var transactionStatusCode = transaction.getTransactionStatus().getCode();
 

@@ -135,4 +135,20 @@ public class ErrorHandler {
 
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
+
+    @ExceptionHandler(ActivationFailedException.class)
+    public ResponseEntity<?> handleActivationFailedException(ActivationFailedException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    public ResponseEntity<?> handleInvalidParameterException(InvalidParameterException e) {
+        var httpStatus = HttpStatus.BAD_REQUEST;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
 }

@@ -22,16 +22,10 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<PageRes<TransactionResDTO>> getTransactions(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<PageRes<TransactionResDTO>> getTransactions(@RequestParam(defaultValue = "1") Integer page,
                                                                       @RequestParam(defaultValue = "10") Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        var response = transactionService.getTransactions(pageable);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("{id}")
-    public ResponseEntity<TransactionResDTO> getTransactionById(@PathVariable String id) {
-        var response = transactionService.getTransactionById(id);
+        var response = transactionService.getTransactions(page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

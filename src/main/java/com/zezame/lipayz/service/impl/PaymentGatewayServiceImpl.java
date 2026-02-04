@@ -26,6 +26,7 @@ import com.zezame.lipayz.service.PaymentGatewayService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,10 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public PageRes<PaymentGatewayResDTO> getPaymentGateways(Pageable pageable) {
+    public PageRes<PaymentGatewayResDTO> getPaymentGateways(Integer page, Integer size) {
+        validatePaginationParam(page, size);
+
+        Pageable pageable = PageRequest.of((page - 1), size);
         Page<PaymentGateway> paymentGateways = paymentGatewayRepo.findAll(pageable);
         return pageMapper.toPageResponse(paymentGateways, this::mapToDto);
     }

@@ -19,7 +19,9 @@ import com.zezame.lipayz.repo.TransactionRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +33,15 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     private final PageMapper pageMapper;
 
     @Override
-    public PageRes<ProductResDTO> getProducts(Pageable pageable) {
+    public PageRes<ProductResDTO> getProducts(Integer page, Integer size) {
+        validatePaginationParam(page, size);
+
+        Pageable pageable = PageRequest.of((page - 1), size);
         Page<Product> products = productRepo.findAll(pageable);
         return pageMapper.toPageResponse(products, this::mapToDto);
     }
 
+    @Cacheable()
     @Override
     public ProductResDTO getProductById(String id) {
         var product = findProductById(id);

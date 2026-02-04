@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface PaymentGatewayAdminRepo extends JpaRepository<PaymentGatewayAdmin, UUID> {
     PaymentGatewayAdmin findByUser(User user);
+
+    PaymentGatewayAdmin findByUser_Id(UUID userId);
 }

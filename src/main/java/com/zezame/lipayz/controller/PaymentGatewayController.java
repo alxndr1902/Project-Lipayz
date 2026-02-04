@@ -26,10 +26,10 @@ public class PaymentGatewayController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SA', 'CUST')")
-    public ResponseEntity<PageRes<PaymentGatewayResDTO>> getPaymentGateways(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<PageRes<PaymentGatewayResDTO>> getPaymentGateways(@RequestParam(defaultValue = "1") Integer page,
                                                                             @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        var response = paymentGatewayService.getPaymentGateways(pageable);
+
+        var response = paymentGatewayService.getPaymentGateways(page, size);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
