@@ -18,7 +18,7 @@ public interface TransactionRepo extends JpaRepository<Transaction, UUID> {
         WHERE t.customer.id = :id
         """)
     Page<Transaction> findByCustomer (Pageable pageable,
-                                      @Param("id") String id);
+                                      @Param("id") UUID id);
 
     @Query("""
            SELECT t
@@ -27,7 +27,7 @@ public interface TransactionRepo extends JpaRepository<Transaction, UUID> {
            WHERE pga.user.id = :id
            """)
     Page<Transaction> findByPaymentGateway (Pageable pageable,
-                                            @Param("id") String id);
+                                            @Param("id") UUID id);
 
     boolean existsByCustomer(User customer);
 

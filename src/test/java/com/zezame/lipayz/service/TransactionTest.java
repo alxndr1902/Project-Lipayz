@@ -224,4 +224,93 @@ public class TransactionTest {
         Mockito.verify(transactionRepo, Mockito.atLeast(1)).findAll(pageable);
         Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
     }
+
+    @Test
+    public void shouldReturnAll_whenRoleIsCustomer() {
+        var customerId = UUID.randomUUID();
+        transactionService.setPrincipal(principalService);
+        var auth = new AuthorizationPojo(customerId.toString(), "CUST");
+        Mockito.when(principalService.getPrincipal()).thenReturn(auth);
+
+        var pageable = PageRequest.of(0, 10);
+
+        var id = UUID.randomUUID();
+
+        var customer = new User();
+        customer.setId(customerId);
+
+        var savedTransaction = new Transaction();
+        savedTransaction.setId(id);
+        savedTransaction.setCustomer(customer);
+
+        List<Transaction> transactions = List.of(savedTransaction);
+
+        Page<Transaction> page = new PageImpl<>(transactions, pageable, transactions.size());
+
+        Mockito.when(transactionRepo.findByCustomer(pageable, customerId))
+                .thenReturn(page);
+        Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
+                .thenReturn(new PageRes<>(
+                        List.of(new TransactionResDTO(savedTransaction.getId(),
+                                null, null, null, null,
+                                null, null, null,
+                                null, null)),
+                        new PageMeta(page.getNumber(), pageable.getPageSize(), page.getTotalElements())
+                ));
+
+        var result = transactionService.getTransactions(1, 10);
+
+        Assertions.assertEquals(transactions.size(), result.getData().size());
+        Assertions.assertEquals(id, result.getData().getFirst().getId());
+
+        Mockito.verify(transactionRepo, Mockito.atLeast(1)).findByCustomer(pageable, customerId);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void shouldReturnAll_whenRoleIsPGA() {
+        var pgaId = UUID.randomUUID();
+        transactionService.setPrincipal(principalService);
+        var auth = new AuthorizationPojo(pgaId.toString(), "PGA");
+        Mockito.when(principalService.getPrincipal()).thenReturn(auth);
+
+        var pageable = PageRequest.of(0, 10);
+
+        var id = UUID.randomUUID();
+
+        var pg = new PaymentGateway();
+
+        var pgaUser = new User();
+        pgaUser.setId(pgaId);
+
+        var pga = new PaymentGatewayAdmin();
+        pga.setPaymentGateway(pg);
+
+        var savedTransaction = new Transaction();
+        savedTransaction.setId(id);
+        savedTransaction.setPaymentGateway(pg);
+
+        List<Transaction> transactions = List.of(savedTransaction);
+
+        Page<Transaction> page = new PageImpl<>(transactions, pageable, transactions.size());
+
+        Mockito.when(transactionRepo.findByPaymentGateway(pageable, pgaId))
+                .thenReturn(page);
+        Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
+                .thenReturn(new PageRes<>(
+                        List.of(new TransactionResDTO(savedTransaction.getId(),
+                                null, null, null, null,
+                                null, null, null,
+                                null, null)),
+                        new PageMeta(page.getNumber(), pageable.getPageSize(), page.getTotalElements())
+                ));
+
+        var result = transactionService.getTransactions(1, 10);
+
+        Assertions.assertEquals(transactions.size(), result.getData().size());
+        Assertions.assertEquals(id, result.getData().getFirst().getId());
+
+        Mockito.verify(transactionRepo, Mockito.atLeast(1)).findByPaymentGateway(pageable, pgaId);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
+    }
 }

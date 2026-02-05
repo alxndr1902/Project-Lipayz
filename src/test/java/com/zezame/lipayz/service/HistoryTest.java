@@ -89,4 +89,110 @@ public class HistoryTest {
         Mockito.verify(historyRepo, Mockito.times(1)).findByCustomer(user.getId(), pageable);
         Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
     }
+
+    @Test
+    public void shouldReturnAll_whenRoleIsPGA() {
+        var userId = UUID.randomUUID();
+        historyService.setPrincipal(principalService);
+        var auth = new AuthorizationPojo(userId.toString(), "PGA");
+        Mockito.when(principalService.getPrincipal()).thenReturn(auth);
+
+
+        var role = new Role();
+        role.setCode("PGA");
+
+        var user = new User();
+        user.setId(userId);
+        user.setRole(role);
+
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        var id = UUID.randomUUID();
+
+        var transaction = new Transaction();
+        transaction.setCustomer(user);
+
+        var transactionStatus = new TransactionStatus();
+
+        var savedHistory = new History();
+        savedHistory.setTransaction(transaction);
+        savedHistory.setTransactionStatus(transactionStatus);
+        savedHistory.setId(id);
+
+        List<History> histories = List.of(savedHistory);
+
+        Page<History> page = new PageImpl<>(histories, pageable, histories.size());
+
+        Mockito.when(historyRepo.findByPaymentGateway(userId, pageable))
+                .thenReturn(page);
+
+        Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
+                .thenReturn(new PageRes<>(
+                        List.of(new HistoryResDTO(savedHistory.getId(), null, null, null)),
+                        new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), histories.size())
+                ));
+
+        var result = historyService.getHistories(1, 10);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(histories.size(), result.getData().size());
+        Assertions.assertEquals(id, result.getData().getFirst().getId());
+
+        Mockito.verify(historyRepo, Mockito.times(1)).findByPaymentGateway(user.getId(), pageable);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void shouldReturnAll_whenRoleIsSA() {
+        var userId = UUID.randomUUID();
+        historyService.setPrincipal(principalService);
+        var auth = new AuthorizationPojo(userId.toString(), "SA");
+        Mockito.when(principalService.getPrincipal()).thenReturn(auth);
+
+
+        var role = new Role();
+        role.setCode("SA");
+
+        var user = new User();
+        user.setId(userId);
+        user.setRole(role);
+
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        var id = UUID.randomUUID();
+
+        var transaction = new Transaction();
+        transaction.setCustomer(user);
+
+        var transactionStatus = new TransactionStatus();
+
+        var savedHistory = new History();
+        savedHistory.setTransaction(transaction);
+        savedHistory.setTransactionStatus(transactionStatus);
+        savedHistory.setId(id);
+
+        List<History> histories = List.of(savedHistory);
+
+        Page<History> page = new PageImpl<>(histories, pageable, histories.size());
+
+        Mockito.when(historyRepo.findAll(pageable))
+                .thenReturn(page);
+
+        Mockito.when(pageMapper.toPageResponse(Mockito.any(), Mockito.any()))
+                .thenReturn(new PageRes<>(
+                        List.of(new HistoryResDTO(savedHistory.getId(), null, null, null)),
+                        new PageMeta(pageable.getPageNumber(), pageable.getPageSize(), histories.size())
+                ));
+
+        var result = historyService.getHistories(1, 10);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(histories.size(), result.getData().size());
+        Assertions.assertEquals(id, result.getData().getFirst().getId());
+
+        Mockito.verify(historyRepo, Mockito.times(1)).findAll(pageable);
+        Mockito.verify(pageMapper, Mockito.atLeast(1)).toPageResponse(Mockito.any(), Mockito.any());
+    }
 }

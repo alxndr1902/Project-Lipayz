@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -48,8 +49,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         validatePaginationParam(page, size);
 
         Pageable pageable = PageRequest.of((page - 1), size);
-        String role = principalService.getPrincipal().getRoleCode();
-        String id = principalService.getPrincipal().getId();
+        var role = principalService.getPrincipal().getRoleCode();
+        var id = UUID.fromString(principalService.getPrincipal().getId());
 
         Page<Transaction> transactions = printPaginationByRole(role,
                 () -> transactionRepo.findAll(pageable),
