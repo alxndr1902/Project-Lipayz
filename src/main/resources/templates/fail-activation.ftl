@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"/>
     <title>Activation Failed</title>
     <style>
         body {
@@ -8,24 +9,27 @@
             background: #f4f6f8;
             text-align: center;
             padding: 60px;
+            margin: 0;
         }
 
         .card {
             max-width: 500px;
             margin: auto;
-            background: white;
+            background: #ffffff;
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         h1 {
-            color: #dc3545; /* merah */
+            color: #dc3545;
+            margin-bottom: 15px;
         }
 
         p {
             color: #555;
             font-size: 15px;
+            line-height: 1.6;
         }
 
         a {
@@ -33,10 +37,10 @@
             margin-top: 25px;
             padding: 12px 25px;
             background: #dc3545;
-            color: white;
+            color: #ffffff;
             text-decoration: none;
             border-radius: 8px;
-            transition: 0.3s;
+            transition: background 0.3s;
         }
 
         a:hover {
@@ -50,7 +54,7 @@
     <h1>Activation Failed</h1>
 
     <p>
-        Error Occured When Activating The Account.
+        An error occurred while activating your account.
     </p>
 
     <a href="http://localhost:8080/auth/register">

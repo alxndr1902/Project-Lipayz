@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -32,11 +32,11 @@
                     <td style="padding:40px;">
 
                         <h2 style="margin:0; font-size:20px; color:#333; text-align:center;">
-                            Hello, <span th:text="${customerName}">Customer</span>
+                            Hello, ${customerName}
                         </h2>
 
                         <p style="margin:20px 0; font-size:15px; line-height:1.6; color:#555; text-align:center;">
-                            Your transaction has been created successfully.
+                            Your transaction has been updated successfully.
                         </p>
 
                         <table width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -55,7 +55,7 @@
                                     Transaction Code
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:#333;">
-                                    <span th:text="${code}">TRX-001</span>
+                                    ${code}
                                 </td>
                             </tr>
 
@@ -64,7 +64,7 @@
                                     Product
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:#333;">
-                                    <span th:text="${productName}">Premium Subscription</span>
+                                    ${productName}
                                 </td>
                             </tr>
 
@@ -73,7 +73,7 @@
                                     Payment Gateway
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:#333;">
-                                    <span th:text="${paymentGatewayName}">BCA Virtual Account</span>
+                                    ${paymentGatewayName}
                                 </td>
                             </tr>
 
@@ -82,7 +82,7 @@
                                     Virtual Account Number
                                 </td>
                                 <td style="padding:12px; font-size:15px; font-weight:bold; color:#4facfe;">
-                                    <span th:text="${virtualAccountNumber}">1234567890</span>
+                                    ${virtualAccountNumber}
                                 </td>
                             </tr>
 
@@ -91,7 +91,7 @@
                                     Status
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:green;">
-                                    <span th:text="${transactionStatusName}">PENDING</span>
+                                    ${transactionStatusName}
                                 </td>
                             </tr>
 
@@ -100,7 +100,7 @@
                                     Admin Fee
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:#333;">
-                                    Rp <span th:text="${adminRate}">2500</span>
+                                    Rp ${adminRate}
                                 </td>
                             </tr>
 
@@ -109,7 +109,7 @@
                                     Total Payment
                                 </td>
                                 <td style="padding:12px; font-size:16px; font-weight:bold; color:#d9534f;">
-                                    Rp <span th:text="${totalPrice}">50000</span>
+                                    Rp ${totalPrice}
                                 </td>
                             </tr>
 
@@ -118,14 +118,14 @@
                                     Created At
                                 </td>
                                 <td style="padding:12px; font-size:14px; font-weight:bold; color:#333;">
-                                    <span th:text="${createdAt}">2026-02-03 10:00</span>
+                                    ${createdAt}
                                 </td>
                             </tr>
 
                         </table>
 
                         <p style="margin-top:30px; font-size:13px; color:#777; text-align:center;">
-                            Thank you for for purchasing through our service.
+                            Thank you for purchasing through our service.
                         </p>
 
                     </td>

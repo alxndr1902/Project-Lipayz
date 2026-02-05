@@ -59,9 +59,10 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('SA')")
     @PutMapping("{id}/change-password")
-    public ResponseEntity<CommonResDTO> changePassword(@RequestParam @Valid AdminChangePasswordDto request,
-                                                       @PathVariable(required = false) String id) {
+    public ResponseEntity<CommonResDTO> changePassword(@RequestBody @Valid AdminChangePasswordDto request,
+                                                       @PathVariable String id) {
         var response = userService.adminChangePassword(request, id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

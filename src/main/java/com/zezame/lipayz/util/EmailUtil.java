@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,10 @@ public class EmailUtil {
     }
 
     private Map<String, Object> buildTransactionModel(Transaction transaction) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        String createdAt = transaction.getCreatedAt().format(formatter);
+
         Map<String, Object> model = new HashMap<>();
 
         model.put("customerName", transaction.getCustomer().getFullName());
@@ -76,7 +81,7 @@ public class EmailUtil {
         model.put("transactionStatusName", transaction.getTransactionStatus().getName());
         model.put("adminRate", transaction.getPaymentGateway().getRate());
         model.put("totalPrice", transaction.getTotalPrice());
-        model.put("createdAt", transaction.getCreatedAt());
+        model.put("createdAt", createdAt);
 
         return model;
     }
