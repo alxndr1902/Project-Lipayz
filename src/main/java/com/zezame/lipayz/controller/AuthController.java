@@ -40,6 +40,4 @@ public class AuthController {
         return new ResponseEntity<>(new LoginResponseDTO(user.getFullName(),
                 user.getRole().getCode(), token), HttpStatus.OK);
     }
-
-
 }

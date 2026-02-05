@@ -9,7 +9,7 @@ import lombok.Data;
 public class LoginRequestDTO {
     @Email(message = "Invalid Email Format")
     @NotBlank(message = "Email Is Required")
-    @Size(max = 20, message = "Email Maximum Length Is 100 Characters")
+    @Size(max = 100, message = "Email Maximum Length Is 100 Characters")
     private String email;
 
     @NotBlank(message = "Password Is Required")

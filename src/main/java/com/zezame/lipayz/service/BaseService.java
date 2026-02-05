@@ -17,11 +17,21 @@ import java.util.function.Supplier;
 public class BaseService {
     protected PrincipalService principalService;
 
-    protected <T extends BaseModel> T prepareCreate(T model) {
+    private <T extends BaseModel> T initialCreate(T model, LocalDateTime now) {
         model.setId(UUID.randomUUID());
-        model.setCreatedAt(LocalDateTime.now());
         model.setCreatedBy(UUID.fromString(principalService.getPrincipal().getId()));
+        model.setCreatedAt(now);
         return model;
+    }
+
+    protected <T extends BaseModel> T prepareCreate(T model) {
+        var preparedModel = initialCreate(model, LocalDateTime.now());
+        return preparedModel;
+    }
+
+    protected <T extends BaseModel> T prepareCreate(T model, LocalDateTime now) {
+        var preparedModel = initialCreate(model, now);
+        return preparedModel;
     }
 
     protected <T extends BaseModel> T prepareRegister(T model, UserRepo userRepo) {
@@ -41,12 +51,7 @@ public class BaseService {
         return model;
     }
 
-    protected <T extends BaseModel> T prepareCreate(T model, LocalDateTime now) {
-        model.setId(UUID.randomUUID());
-        model.setCreatedAt(now);
-        model.setCreatedBy(UUID.fromString(principalService.getPrincipal().getId()));
-        return model;
-    }
+
 
     protected <T extends BaseModel> T prepareUpdate(T model) {
         model.setUpdatedAt(LocalDateTime.now());
