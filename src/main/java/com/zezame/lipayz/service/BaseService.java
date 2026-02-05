@@ -25,13 +25,11 @@ public class BaseService {
     }
 
     protected <T extends BaseModel> T prepareCreate(T model) {
-        var preparedModel = initialCreate(model, LocalDateTime.now());
-        return preparedModel;
+        return initialCreate(model, LocalDateTime.now());
     }
 
     protected <T extends BaseModel> T prepareCreate(T model, LocalDateTime now) {
-        var preparedModel = initialCreate(model, now);
-        return preparedModel;
+        return initialCreate(model, now);
     }
 
     protected <T extends BaseModel> T prepareRegister(T model, UserRepo userRepo) {
