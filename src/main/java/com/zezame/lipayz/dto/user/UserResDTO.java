@@ -7,6 +7,7 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserResDTO {
     private UUID id;
     private String name;
