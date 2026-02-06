@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Activate Your Account</title>
 </head>
 
@@ -36,7 +36,7 @@
                     <td style="padding:40px; text-align:center;">
 
                         <h2 style="margin:0; font-size:20px; color:#333;">
-                            Hi, <span th:text="${fullName}">Customer</span>
+                            Hi, ${fullName}
                         </h2>
 
                         <p style="margin:20px 0; font-size:15px; line-height:1.6; color:#555;">
@@ -44,7 +44,7 @@
                             To start using your account, please confirm your email address by clicking the button below.
                         </p>
 
-                        <a th:href="${activationLink}"
+                        <a href="${activationLink}"
                            style="display:inline-block;
                            padding:14px 28px;
                            background:#4facfe;
@@ -61,7 +61,7 @@
                         </p>
 
                         <p style="font-size:12px; word-break:break-all; color:#4facfe;">
-                            <span th:text="${activationLink}"></span>
+                            ${activationLink}
                         </p>
 
                     </td>

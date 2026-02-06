@@ -18,7 +18,7 @@ public class PageMapper {
         }
 
         PageMeta meta = new PageMeta(
-                page.getNumber(),
+                (page.getNumber() + 1),
                 page.getSize(),
                 page.getTotalElements()
         );
