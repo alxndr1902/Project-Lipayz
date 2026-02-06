@@ -166,7 +166,8 @@ public class TransactionServiceImpl extends BaseService implements TransactionSe
         var paymentGateway = transaction.getPaymentGateway();
 
         var userId = principalService.getUserId();
-        var paymentGatewayAdmin = paymentGatewayAdminRepo.findByUser_Id(userId);
+        var paymentGatewayAdmin = paymentGatewayAdminRepo.findByUser_Id(userId)
+                .orElseThrow(() -> new NotFoundException("PGA Is Not Found"));
 
         if (!paymentGatewayAdmin.getPaymentGateway().getId().equals(paymentGateway.getId())) {
             throw new ForbiddenException("You are Not Allowed To Perform This Action");

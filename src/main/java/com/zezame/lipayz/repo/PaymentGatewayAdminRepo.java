@@ -3,7 +3,9 @@ package com.zezame.lipayz.repo;
 import com.zezame.lipayz.model.PaymentGatewayAdmin;
 import com.zezame.lipayz.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentGatewayAdminRepo extends JpaRepository<PaymentGatewayAdmin, UUID> {

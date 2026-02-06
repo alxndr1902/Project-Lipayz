@@ -1,5 +1,6 @@
 package com.zezame.lipayz.repo;
 
+import com.zezame.lipayz.model.PaymentGateway;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.model.User;
@@ -38,6 +39,8 @@ public interface TransactionRepo extends JpaRepository<Transaction, UUID> {
     long countPGAById(@Param("pgaId") UUID pgaId);
 
     boolean existsByCustomer(User customer);
+
+    boolean existsByPaymentGateway(PaymentGateway paymentGateway);
 
     boolean existsByProduct(Product product);
 }

@@ -166,7 +166,7 @@ public class TransactionTest {
         Mockito.when(transactionRepo.findById(Mockito.any()))
                 .thenReturn(Optional.of(transaction));
         Mockito.when(paymentGatewayAdminRepo.findByUser_Id(Mockito.any()))
-                .thenReturn(admin);
+                .thenReturn(Optional.of(admin));
         Mockito.when(transactionStatusRepo.findByCode(TransactionStatusCode.SCS.name()))
                 .thenReturn(Optional.of(successStatus));
         Mockito.when(transactionRepo.saveAndFlush(Mockito.any()))
