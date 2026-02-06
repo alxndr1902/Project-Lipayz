@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.UUID;
 
-public interface HistoryRepo extends JpaRepository<History, UUID> {
+public interface HistoryRepo extends JpaRepository<History, UUID>, JpaSpecificationExecutor<History> {
     @Query("""
         SELECT h
         FROM History h
