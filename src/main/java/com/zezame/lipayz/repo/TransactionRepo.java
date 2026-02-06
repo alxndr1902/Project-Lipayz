@@ -39,7 +39,5 @@ public interface TransactionRepo extends JpaRepository<Transaction, UUID> {
 
     boolean existsByCustomer(User customer);
 
-    boolean existsByUpdatedByEquals(UUID updatedBy);
-
     boolean existsByProduct(Product product);
 }
