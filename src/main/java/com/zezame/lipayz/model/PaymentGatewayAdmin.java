@@ -25,4 +25,6 @@ public class PaymentGatewayAdmin extends BaseModel{
         this.paymentGateway = new PaymentGateway();
         this.paymentGateway.setId(paymentGatewayId);
     }
+
+
 }

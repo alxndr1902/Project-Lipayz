@@ -143,4 +143,28 @@ public class ErrorHandler {
 
         return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
     }
+
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<?> handleRateLimitException(RateLimitException e) {
+        var httpStatus = HttpStatus.TOO_MANY_REQUESTS;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(InvalidRefreshToken.class)
+    public ResponseEntity<?> handleInvalidRefreshToken(InvalidRefreshToken e) {
+        var httpStatus = HttpStatus.UNAUTHORIZED;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
+
+    @ExceptionHandler(InvalidAccessToken.class)
+    public ResponseEntity<?> handleInvalidAccessToken(InvalidAccessToken e) {
+        var httpStatus = HttpStatus.UNAUTHORIZED;
+        var errorMessage = e.getMessage();
+
+        return new ResponseEntity<>(new ErrorResDTO<>(errorMessage), httpStatus);
+    }
 }

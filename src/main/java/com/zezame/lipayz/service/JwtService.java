@@ -19,22 +19,40 @@ import java.util.HashMap;
 public class JwtService {
     private final Key secretKey;
     private final long expireTime;
+    private final long refreshTime;
 
     public JwtService(@Value("${jwt.secret}") String secret,
-                      @Value("${jwt.expiration-minutes}") long expireTime) {
+                      @Value("${jwt.expiration-minutes}") long expireTime,
+                      @Value("${jwt.expiration-refresh}") long refreshTime) {
         this.secretKey = Keys.hmacShaKeyFor(
                 Decoders.BASE64.decode(secret));
         this.expireTime = expireTime;
+        this.refreshTime = refreshTime;
     }
 
     public String generateToken(String id, String roleCode) {
         var claims = new HashMap<String, Object>();
         claims.put("id", id);
         claims.put("role", roleCode);
+        claims.put("type", "ACCESS");
 
         var jwtBuilder = Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(Timestamp.valueOf(LocalDateTime.now().plusMinutes(expireTime)))
+                .signWith(secretKey);
+
+        return jwtBuilder.compact();
+    }
+
+    public String generateRefreshToken(String id, String roleCode) {
+        var claims = new HashMap<String, Object>();
+        claims.put("id", id);
+        claims.put("role", roleCode);
+        claims.put("type", "REFRESH");
+
+        var jwtBuilder = Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(Timestamp.valueOf(LocalDateTime.now().plusMinutes(refreshTime)))
                 .signWith(secretKey);
 
         return jwtBuilder.compact();

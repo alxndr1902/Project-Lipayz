@@ -37,6 +37,8 @@ public class SecurityConfig {
         matchers.add(PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.POST, "/auth/login"));
         matchers.add(PathPatternRequestMatcher.withDefaults()
+                .matcher(HttpMethod.POST, "/auth/refresh"));
+        matchers.add(PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.POST, "/users/register"));
         matchers.add(PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.GET, "/users/activate"));

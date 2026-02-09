@@ -1,5 +1,9 @@
 package com.zezame.lipayz.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zezame.lipayz.dto.ErrorResDTO;
+import com.zezame.lipayz.exceptiohandler.exception.InvalidAccessToken;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.service.JwtService;
 import jakarta.servlet.FilterChain;
@@ -24,10 +28,12 @@ import java.util.List;
 @Slf4j
 @Component
 public class TokenFilter extends OncePerRequestFilter {
+    private final ObjectMapper objectMapper;
     private final List<RequestMatcher> requestMatchers;
     private final JwtService jwtService;
 
-    public TokenFilter(List<RequestMatcher> requestMatchers, JwtService jwtService) {
+    public TokenFilter(ObjectMapper objectMapper, List<RequestMatcher> requestMatchers, JwtService jwtService) {
+        this.objectMapper = objectMapper;
         this.requestMatchers = requestMatchers;
         this.jwtService = jwtService;
     }
@@ -52,6 +58,10 @@ public class TokenFilter extends OncePerRequestFilter {
             try {
                 var claims = jwtService.validateToken(token);
 
+                if (claims.get("type").toString().equals("REFRESH")) {
+                    throw new InvalidAccessToken("Invalid Token");
+                }
+
                 var data = new AuthorizationPojo(claims.get("id").toString(), claims.get("role").toString());
 
                 var role =  claims.get("role", String.class);
@@ -67,14 +77,14 @@ public class TokenFilter extends OncePerRequestFilter {
                 log.error("error occurred: ", e);
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType("application/json");
-                response.getWriter().write("""
-                        {
-                            "message": "Invalid Or Expired Token"
-                        }
-                        """);
+                response.getWriter().write(responseJSON(e.getMessage()));
             }
         } else {
             filterChain.doFilter(request, response);
         }
+    }
+
+    private String responseJSON(String message) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(new ErrorResDTO<>(message));
     }
 }
