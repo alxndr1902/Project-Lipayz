@@ -6,6 +6,7 @@ import com.zezame.lipayz.dto.ErrorResDTO;
 import com.zezame.lipayz.exceptiohandler.exception.InvalidAccessToken;
 import com.zezame.lipayz.pojo.AuthorizationPojo;
 import com.zezame.lipayz.service.JwtService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,20 +57,9 @@ public class TokenFilter extends OncePerRequestFilter {
             var token = authHeader.substring(7);
 
             try {
-                var claims = jwtService.validateToken(token);
+                var claims = getValidatedToken(token);
 
-                if (claims.get("type").toString().equals("REFRESH")) {
-                    throw new InvalidAccessToken("Invalid Token");
-                }
-
-                var data = new AuthorizationPojo(claims.get("id").toString(), claims.get("role").toString());
-
-                var role =  claims.get("role", String.class);
-
-                Collection<? extends GrantedAuthority> authorities =
-                        Collections.singletonList(new SimpleGrantedAuthority(role));
-
-                var auth = new UsernamePasswordAuthenticationToken(data, null, authorities);
+                var auth = getAuth(claims);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 filterChain.doFilter(request, response);
@@ -82,6 +72,27 @@ public class TokenFilter extends OncePerRequestFilter {
         } else {
             filterChain.doFilter(request, response);
         }
+    }
+
+    private Claims getValidatedToken(String token) {
+        var claims = jwtService.validateToken(token);
+
+        if (claims.get("type").toString().equals("REFRESH")) {
+            throw new InvalidAccessToken("Invalid Token");
+        }
+
+        return claims;
+    }
+
+    private UsernamePasswordAuthenticationToken getAuth(Claims claims) {
+        var data = new AuthorizationPojo(claims.get("id").toString(), claims.get("role").toString());
+
+        var role =  claims.get("role", String.class);
+
+        Collection<? extends GrantedAuthority> authorities =
+                Collections.singletonList(new SimpleGrantedAuthority(role));
+
+        return new UsernamePasswordAuthenticationToken(data, null, authorities);
     }
 
     private String responseJSON(String message) throws JsonProcessingException {
