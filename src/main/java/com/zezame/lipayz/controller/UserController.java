@@ -21,8 +21,9 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAuthority('SA')")
     public ResponseEntity<PageRes<UserResDTO>> getUsers(@RequestParam(defaultValue = "1") Integer page,
-                                                        @RequestParam(defaultValue = "10") Integer size) {
-        var responses = userService.getUsers(page, size);
+                                                        @RequestParam(defaultValue = "10") Integer size,
+                                                        @RequestParam(required = false) String name) {
+        var responses = userService.getUsers(page, size, name);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 

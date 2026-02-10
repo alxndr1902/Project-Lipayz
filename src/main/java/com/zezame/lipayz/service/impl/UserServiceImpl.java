@@ -18,13 +18,17 @@ import com.zezame.lipayz.repo.TransactionRepo;
 import com.zezame.lipayz.repo.UserRepo;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.UserService;
+import com.zezame.lipayz.specification.UserSpecification;
 import com.zezame.lipayz.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,12 +62,16 @@ public class UserServiceImpl extends BaseService implements UserService {
                 .orElseThrow(() -> new NotFoundException("User Is Not Found"));
     }
 
+    @Cacheable(value = "user",
+            key = "'page:' + #page + 'size:' + #size + 'name:' + #name")
     @Override
-    public PageRes<UserResDTO> getUsers(Integer page, Integer size) {
+    public PageRes<UserResDTO> getUsers(Integer page, Integer size, String name) {
         validatePaginationParam(page, size);
 
+        Specification<User> spec = UserSpecification.hasName(name);
+
         Pageable pageable = PageRequest.of((page - 1), size);
-        Page<User> users = userRepo.findAll(pageable);
+        Page<User> users = userRepo.findAll(spec, pageable);
         return pageMapper.toPageResponse(users, this::mapToDto);
     }
 
@@ -80,6 +88,7 @@ public class UserServiceImpl extends BaseService implements UserService {
                 user.getId(), user.getFullName(), user.getRole().getName(), user.getVersion());
     }
 
+    @CacheEvict(value = "user", allEntries = true)
     @Override
     public CreateResDTO registerUser(CreateUserReqDTO request) {
         if (userRepo.existsByEmail(request.getEmail())) {
@@ -124,6 +133,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         emailUtil.sendWelcomeEmail(emailPojo.getCustomer(), emailPojo.getActivationLink());
     }
 
+    @CacheEvict(value = "user", allEntries = true)
     @Override
     public CommonResDTO deleteUser(String id) {
         var customer = validateAndGetCustomerForDelete(id);
@@ -141,8 +151,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         if (customer.getRole().getCode().equals(RoleCode.PGA.name())) {
             var paymentGatewayAdmin = paymentGatewayAdminRepo.findByUser(customer);
-            if (transactionRepo.existsByUpdatedByEquals(paymentGatewayAdmin.getId())) {
-                throw new ConflictException("This Payment Gateway Admin Cannot Be Deleted, Because They Have Transactions History");
+            if (transactionRepo.countPGAById(paymentGatewayAdmin.getId()) > 0) {
+                throw new ConflictException(
+                        "This Payment Gateway Admin Cannot Be Deleted, Because They Have Transactions History");
             }
 
             paymentGatewayAdminRepo.delete(paymentGatewayAdmin);

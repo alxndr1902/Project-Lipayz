@@ -3,6 +3,8 @@ package com.zezame.lipayz.service;
 import com.zezame.lipayz.dto.history.HistoryResDTO;
 import com.zezame.lipayz.dto.pagination.PageRes;
 
+import java.util.UUID;
+
 public interface HistoryService {
-    PageRes<HistoryResDTO> getHistories(Integer page, Integer size);
+    PageRes<HistoryResDTO> getHistories(Integer page, Integer size, String role, UUID id);
 }

@@ -10,6 +10,7 @@ import com.zezame.lipayz.dto.paymentgateway.CreatePGAdminReqDTO;
 import com.zezame.lipayz.dto.paymentgateway.CreatePGReqDTO;
 import com.zezame.lipayz.dto.paymentgateway.PaymentGatewayResDTO;
 import com.zezame.lipayz.dto.paymentgateway.UpdatePGReqDTO;
+import com.zezame.lipayz.exceptiohandler.exception.ConflictException;
 import com.zezame.lipayz.exceptiohandler.exception.DuplicateException;
 import com.zezame.lipayz.exceptiohandler.exception.NotFoundException;
 import com.zezame.lipayz.exceptiohandler.exception.OptimisticLockException;
@@ -17,14 +18,12 @@ import com.zezame.lipayz.mapper.PageMapper;
 import com.zezame.lipayz.model.PaymentGateway;
 import com.zezame.lipayz.model.PaymentGatewayAdmin;
 import com.zezame.lipayz.model.User;
-import com.zezame.lipayz.repo.PaymentGatewayAdminRepo;
-import com.zezame.lipayz.repo.PaymentGatewayRepo;
-import com.zezame.lipayz.repo.RoleRepo;
-import com.zezame.lipayz.repo.UserRepo;
+import com.zezame.lipayz.repo.*;
 import com.zezame.lipayz.service.BaseService;
 import com.zezame.lipayz.service.PaymentGatewayService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +41,7 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
     private final RoleRepo roleRepo;
     private final PageMapper pageMapper;
     private final PasswordEncoder passwordEncoder;
+    private final TransactionRepo transactionRepo;
 
     @Override
     public PageRes<PaymentGatewayResDTO> getPaymentGateways(Integer page, Integer size) {
@@ -107,11 +107,24 @@ public class PaymentGatewayServiceImpl extends BaseService implements PaymentGat
 
     @Override
     public CommonResDTO deletePaymentGateway(String id) {
-        var paymentGateway = findPaymentGatewayById(id);
+        var paymentGateway = validateAndGetPGForDelete(id);
+
         paymentGatewayRepo.delete(paymentGateway);
         return new CommonResDTO(Message.DELETED.getDescription());
     }
 
+    private PaymentGateway validateAndGetPGForDelete(String id) {
+        var paymentGateway = findPaymentGatewayById(id);
+
+        if (transactionRepo.existsByPaymentGateway(paymentGateway)) {
+            throw new ConflictException(
+                    "Payment Gateway Cannot Be Deleted, Because They Have Transaction History");
+        }
+
+        return paymentGateway;
+    }
+
+    @CacheEvict(value = "user", allEntries = true)
     @Override
     @Transactional(rollbackOn = Exception.class)
     public CreateResDTO registerPaymentGatewayAdmin(String paymentGatewayId, CreatePGAdminReqDTO request) {

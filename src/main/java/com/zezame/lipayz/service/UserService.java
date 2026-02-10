@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService extends UserDetailsService {
     User findByEmail(String email);
 
-    PageRes<UserResDTO> getUsers(Integer page, Integer size);
+    PageRes<UserResDTO> getUsers(Integer page, Integer size, String name);
 
     UserResDTO getUserById(String id);
 

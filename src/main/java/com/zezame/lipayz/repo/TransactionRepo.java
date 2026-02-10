@@ -1,5 +1,6 @@
 package com.zezame.lipayz.repo;
 
+import com.zezame.lipayz.model.PaymentGateway;
 import com.zezame.lipayz.model.Product;
 import com.zezame.lipayz.model.Transaction;
 import com.zezame.lipayz.model.User;
@@ -29,9 +30,17 @@ public interface TransactionRepo extends JpaRepository<Transaction, UUID> {
     Page<Transaction> findByPaymentGateway (Pageable pageable,
                                             @Param("id") UUID id);
 
+    @Query("""
+        SELECT COUNT(t)
+        FROM Transaction t
+        INNER JOIN PaymentGatewayAdmin pga ON t.paymentGateway.id = pga.paymentGateway.id
+        WHERE pga.user.id = :pgaId
+        """)
+    long countPGAById(@Param("pgaId") UUID pgaId);
+
     boolean existsByCustomer(User customer);
 
-    boolean existsByUpdatedByEquals(UUID updatedBy);
+    boolean existsByPaymentGateway(PaymentGateway paymentGateway);
 
     boolean existsByProduct(Product product);
 }
