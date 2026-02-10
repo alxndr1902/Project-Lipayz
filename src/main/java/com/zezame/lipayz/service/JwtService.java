@@ -1,6 +1,7 @@
 package com.zezame.lipayz.service;
 
 import com.zezame.lipayz.exceptiohandler.exception.UnauthorizedException;
+import com.zezame.lipayz.model.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
@@ -70,5 +72,9 @@ public class JwtService {
         } catch (JwtException je) {
             throw new UnauthorizedException("INVALID_TOKEN");
         }
+    }
+
+    public boolean isTokenExpired(RefreshToken token) {
+        return token.getExpiryDate().isBefore(Instant.now());
     }
 }
